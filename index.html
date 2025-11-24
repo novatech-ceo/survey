@@ -1556,6 +1556,49 @@
 
     // --- تحميل البيانات من localStorage أو استخدام الافتراضيات ---
     let candidates = JSON.parse(localStorage.getItem(CANDIDATES_KEY)) || [
+    // --- تحميل البيانات من localStorage أو استخدام الافتراضيات ---
+   <script>
+    // *****************************************************************
+    // 1. مفاتيحك الخاصة لربط Firebase
+    // *****************************************************************
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOt_wSsxdFIfI_waLgEURgrtbfb1yuhBE",
+      authDomain: "smart-election-system-7850b.firebaseapp.com",
+      databaseURL: "https://smart-election-system-7850b-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "smart-election-system-7850b",
+      storageBucket: "smart-election-system-7850b.firebasestorage.app",
+      messagingSenderId: "605066227180",
+      appId: "1:605066227180:web:bbde6ecf8d44d8e19c64c9",
+      measurementId: "G-DC5VCHDCHS"
+    };
+
+    // تهيئة Firebase والاتصال بقاعدة البيانات
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(); 
+    const candidatesRef = database.ref('candidates'); // هذا هو المسار لحفظ البيانات
+
+    // --- متغيرات التخزين الأساسية (يمكن تغييرها) ---
+    const END_TIME_KEY = 'votingEndTime';
+    const VOTED_KEY = 'userVoted';
+    const ADMIN_PASS_1 = 'adminPass1';
+    const ADMIN_PASS_2 = 'adminPass2';
+    const BACKUP_LOG_KEY = 'backupLog';
+    const SYSTEM_HEALTH_KEY = 'systemHealth';
+
+    // ************ الجزء الذي يجب حذفه (تعريف المرشحين محلياً) ************
+    // *** احذف هذه السطور واجعل السطر التالي هو let votingEndTime = ... ***
+    // let candidates = JSON.parse(localStorage.getItem(CANDIDATES_KEY)) || [
+    //     { id: 1, name: "علي الموسوي", party: "التحالف الوطني", votes: 1250, imageUrl: "https://via.placeholder.com/140/00C853/FFFFFF?text=A1" },
+    //     { id: 2, name: "فاطمة الزهراء", party: "كتلة المستقبل", votes: 980, imageUrl: "https://via.placeholder.com/140/2196F3/FFFFFF?text=F2" },
+    //     { id: 3, name: "محمد العبيدي", party: "تيار التغيير", votes: 750, imageUrl: "https://via.placeholder.com/140/7E57C2/FFFFFF?text=M3" }
+    // ];
+    // *******************************************************************
+    
+    // متغير المرشحين سيتم تعريفه هنا ليصبح جاهزاً للاستخدام، لكن قيمته تأتي من Firebase
+    let candidates = [];
+    
+    let votingEndTime = localStorage.getItem(END_TIME_KEY) ? new Date(localStorage.getItem(END_TIME_KEY)) : new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000));
+    // ... باقي الكود يتبع من هنا
         { id: 1, name: "علي الموسوي", party: "التحالف الوطني", votes: 1250, imageUrl: "https://via.placeholder.com/140/00C853/FFFFFF?text=A1" },
         { id: 2, name: "فاطمة الزهراء", party: "كتلة المستقبل", votes: 980, imageUrl: "https://via.placeholder.com/140/2196F3/FFFFFF?text=F2" },
         { id: 3, name: "محمد العبيدي", party: "تيار التغيير", votes: 750, imageUrl: "https://via.placeholder.com/140/7E57C2/FFFFFF?text=M3" }
@@ -1570,6 +1613,8 @@
     let systemHealth = JSON.parse(localStorage.getItem(SYSTEM_HEALTH_KEY)) || { dataHealth: 95, performance: 98, lastCheck: new Date().toISOString() };
     let FINGERPRINT_CODE = "";
     let isVotingOpen = true; // يتم تحديثها بناءً على الوقت
+
+    // --- وظائف المساعدة العامة ---
 
     // --- وظائف المساعدة العامة ---
 
