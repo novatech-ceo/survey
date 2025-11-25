@@ -765,7 +765,7 @@
 
         .time-controls {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 10px;
             margin-top: 15px;
         }
@@ -1180,12 +1180,17 @@
                     <h3><i class="fas fa-info-circle"></i> إعدادات النظام</h3>
 
                     <div class="form-group">
-                        <label for="systemTitle"><i class="fas fa-heading"></i> عنوان النظام</label>
+                        <label for="systemTitle"><i class="fas fa-heading"></i> عنوان النظام (شريط العنوان)</label>
                         <input type="text" id="systemTitle" class="form-control" value="النظام الانتخابي الذكي">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="welcomeMessageInput"><i class="fas fa-comment-alt"></i> الرسالة الترحيبية</label>
+                        <textarea id="welcomeMessageInput" class="form-control" rows="3" >مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.</textarea>
                     </div>
 
                     <button class="btn btn-primary btn-block" onclick="updateSystemTitle()">
-                        <i class="fas fa-save"></i> حفظ العنوان وتحديث الواجهة
+                        <i class="fas fa-save"></i> حفظ العنوان والرسالة وتحديث الواجهة
                     </button>
 
                     <div id="titleMessage" style="margin-top: 10px;"></div>
@@ -1193,6 +1198,7 @@
                     <h3 style="margin-top: 30px;"><i class="fas fa-clock"></i> إعدادات الوقت والدورة</h3>
 
                     <div class="time-display">
+                        <div>وقت بدء التصويت: <strong id="currentStartTimeDisplay">--</strong></div>
                         <div>وقت انتهاء التصويت الحالي:</div>
                         <div class="time-value" id="currentEndTime">--</div>
                         <div style="font-size: 0.8rem; margin-top: 5px;" id="timeRemaining">--</div>
@@ -1322,6 +1328,12 @@
 
                 <div id="advanced-tab" class="tab-content">
                     <h3><i class="fas fa-rocket"></i> الميزات المتقدمة للنظام</h3>
+                    
+                    <div class="advanced-features-panel">
+                        <h4><i class="fas fa-cogs"></i> أدوات التحكم اليدوي</h4>
+                        <button class="btn btn-warning" onclick="simulateMinorFailure()"><i class="fas fa-exclamation-triangle"></i> محاكاة فشل طفيف</button>
+                        <button class="btn btn-info" onclick="rebootSystemCheck()"><i class="fas fa-sync-alt"></i> إعادة تشغيل فحص النظام</button>
+                    </div>
 
                     <div class="advanced-features-panel">
                         <h4><i class="fas fa-shield-alt"></i> نظام التشفير المتقدم</h4>
@@ -1469,7 +1481,7 @@
         <header class="main-header fade-in">
             <div class="header-gradient"></div>
             <h1 id="mainTitle"><i class="fas fa-shield-alt"></i> النظام الانتخابي الذكي <i class="fas fa-poll"></i></h1>
-            <p>مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.</p>
+            <p id="welcomeMessageDisplay">مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.</p>
 
             <div class="advanced-features-panel">
                 <h3><i class="fas fa-rocket"></i> الميزات المتقدمة للنظام (الدورة الحالية: <span id="mainElectionIdDisplay">V1</span>)</h3>
@@ -1569,37 +1581,36 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const candidatesRef = database.ref('candidates');
-    const settingsRef = database.ref('settings'); // **مسار الإعدادات الجديد**
+    const settingsRef = database.ref('settings'); 
 
     // --- متغيرات التخزين الأساسية ---
     const END_TIME_KEY = 'votingEndTime';
-    const START_TIME_KEY = 'votingStartTime'; // **المفتاح الجديد لوقت البدء**
-    const ELECTION_ID_KEY = 'electionId'; // مفتاح معرّف الدورة
-    const VOTED_KEY_PREFIX = 'userVoted_EID_'; // **مفتاح حالة التصويت مُرتبط بالدورة**
+    const START_TIME_KEY = 'votingStartTime'; 
+    const ELECTION_ID_KEY = 'electionId'; 
+    const WELCOME_MSG_KEY = 'welcomeMessage'; // **مفتاح جديد للرسالة الترحيبية**
+    const VOTED_KEY_PREFIX = 'userVoted_EID_';
     const ADMIN_PASS_1 = 'adminPass1';
     const ADMIN_PASS_2 = 'adminPass2';
     const BACKUP_LOG_KEY = 'backupLog';
     const SYSTEM_HEALTH_KEY = 'systemHealth';
 
-    // 💡 تم دمج متغيرات الوقت والدورة
-    let votingStartTime = localStorage.getItem(START_TIME_KEY) ? new Date(localStorage.getItem(START_TIME_KEY)) : new Date(); // يبدأ الآن بشكل افتراضي
+    // 💡 المتغيرات الرئيسية
+    let votingStartTime = localStorage.getItem(START_TIME_KEY) ? new Date(localStorage.getItem(START_TIME_KEY)) : new Date();
     let votingEndTime = localStorage.getItem(END_TIME_KEY) ? new Date(localStorage.getItem(END_TIME_KEY)) : new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000));
     let systemTitle = localStorage.getItem('systemTitle') || "النظام الانتخابي الذكي";
+    let welcomeMessage = localStorage.getItem(WELCOME_MSG_KEY) || "مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية."; // **متغير الرسالة الترحيبية**
     let firstPassword = localStorage.getItem(ADMIN_PASS_1) || "admin123";
     let secondPassword = localStorage.getItem(ADMIN_PASS_2) || "secure456";
     let backupLog = JSON.parse(localStorage.getItem(BACKUP_LOG_KEY)) || [];
     let systemHealth = JSON.parse(localStorage.getItem(SYSTEM_HEALTH_KEY)) || { dataHealth: 95, performance: 98, lastCheck: new Date().toISOString() };
     let FINGERPRINT_CODE = "";
     let isVotingOpen = true;
-
-    // **متغير الدورة الانتخابية**
     let currentElectionId = "V1"; 
-    let hasVoted = false; // ستُحدد قيمته في دالة initApp بناءً على currentElectionId
-
+    let hasVoted = false; 
     let candidates = [];
 
     // *****************************************************************
-    // 2. دالة الاستماع والمزامنة مع Firebase (النواة الجديدة)
+    // 2. دالة الاستماع والمزامنة مع Firebase
     // *****************************************************************
     candidatesRef.on('value', (snapshot) => {
         const data = snapshot.val();
@@ -1626,26 +1637,22 @@
         }
     });
 
-    // **استماع لقراءة معرّف الدورة من Firebase**
     settingsRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data && data.electionId) {
             currentElectionId = data.electionId;
-            // يجب تحديث حالة التصويت المحلية بناءً على المعرّف الجديد
             hasVoted = localStorage.getItem(VOTED_KEY_PREFIX + currentElectionId) === 'true';
             document.getElementById('currentElectionIdDisplay').textContent = currentElectionId;
             document.getElementById('mainElectionIdDisplay').textContent = currentElectionId;
             
-            checkVotingStatus(); // تحديث فوري لحالة الأزرار
-            // لا حاجة لـ renderCandidates() لأن استماع المرشحين يتكفل بذلك
+            checkVotingStatus();
         } else {
-            // إذا لم يكن هناك معرّف، ننشئ واحداً ونحفظه في Firebase
             settingsRef.set({ electionId: currentElectionId })
                 .catch(error => showNotification(`خطأ في إنشاء معرّف الدورة: ${error.message}`, 'danger'));
         }
     });
 
-    // --- وظائف المساعدة العامة (لم تتغير) ---
+    // --- وظائف المساعدة العامة ---
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `notification ${type === 'danger' ? 'alert-danger' : ''} fade-in`;
@@ -1962,7 +1969,6 @@
             return;
         }
         
-        // **التحقق من حالة التصويت بناءً على معرّف الدورة الحالي**
         hasVoted = localStorage.getItem(VOTED_KEY_PREFIX + currentElectionId) === 'true';
 
         if (hasVoted) {
@@ -1977,10 +1983,8 @@
             database.ref(`candidates/${id}/votes`).set(newVotes)
                 .then(() => {
                     hasVoted = true;
-                    // **تسجيل التصويت في LocalStorage مرتبطاً بـ ElectionID**
                     localStorage.setItem(VOTED_KEY_PREFIX + currentElectionId, 'true');
                     showNotification(`شكراً لك! تم التصويت لـ ${candidate.name} بنجاح.`, 'success');
-                    // تحديث حالة الأزرار بعد التصويت
                     checkVotingStatus();
                 })
                 .catch((error) => {
@@ -1991,14 +1995,12 @@
 
     function checkVotingStatus() {
         const now = new Date();
-        // 💡 المنطق المعدَّل: التصويت مفتوح إذا كان الوقت الحالي بين وقت البدء ووقت الانتهاء
         isVotingOpen = (now >= votingStartTime) && (now < votingEndTime); 
 
         const timerDisplay = document.getElementById('mainTimerDisplay');
         const votingMessage = document.getElementById('votingMessage');
         const voteButtons = document.querySelectorAll('.vote-btn');
 
-        // **تحديث حالة hasVoted بناءً على الدورة الحالية**
         hasVoted = localStorage.getItem(VOTED_KEY_PREFIX + currentElectionId) === 'true';
 
         if (isVotingOpen) {
@@ -2028,6 +2030,29 @@
         }
     }
 
+    // **دالة تحديث العناوين والرسالة الترحيبية**
+    function updateSystemTitle() {
+        const newTitle = document.getElementById('systemTitle').value;
+        const newWelcomeMessage = document.getElementById('welcomeMessageInput').value; // **جلب الرسالة الجديدة**
+        
+        if (newTitle.trim() === "") {
+            showNotification("لا يمكن أن يكون العنوان فارغاً.", 'danger');
+            return;
+        }
+        
+        systemTitle = newTitle.trim();
+        welcomeMessage = newWelcomeMessage.trim(); // **تحديث متغير الرسالة**
+
+        localStorage.setItem('systemTitle', systemTitle);
+        localStorage.setItem(WELCOME_MSG_KEY, welcomeMessage); // **حفظ الرسالة الجديدة**
+        
+        document.title = systemTitle; // تغيير شريط العنوان
+        document.getElementById('welcomeMessageDisplay').textContent = welcomeMessage; // **تحديث عرض الرسالة**
+        updateMainStats();
+        showNotification("تم تحديث العنوان والرسالة الترحيبية بنجاح.", 'success');
+    }
+
+
     function updateMainStats() {
         const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
         let leader = { votes: -1, name: '--' };
@@ -2035,11 +2060,11 @@
             leader = candidates.reduce((max, c) => (c.votes > max.votes ? c : max), { votes: -1, name: '--' });
         }
         
-        const participation = candidates.length > 0 ? (totalVotes * 100 / (candidates.length * 1000)).toFixed(2) : 0; // افتراض 1000 ناخب لكل مرشح
+        const participation = candidates.length > 0 ? (totalVotes * 100 / (candidates.length * 1000)).toFixed(2) : 0;
 
+        // **تحديث العناوين في الواجهة الرئيسية**
         document.getElementById('mainTitle').innerHTML = `<i class="fas fa-shield-alt"></i> ${systemTitle} <i class="fas fa-poll"></i>`;
-        document.title = systemTitle;
-        document.getElementById('systemTitle').value = systemTitle;
+        document.getElementById('welcomeMessageDisplay').textContent = welcomeMessage; // **تحديث الرسالة الترحيبية**
         
         document.getElementById('mainStatCandidates').textContent = candidates.length;
         document.getElementById('mainStatTotalVotes').textContent = totalVotes;
@@ -2084,25 +2109,14 @@
             renderDashboardStats();
         }
         if (tabName === 'basic') {
+            // تحديث قيم حقول العنوان والرسالة عند فتح التبويب
+            document.getElementById('systemTitle').value = systemTitle;
+            document.getElementById('welcomeMessageInput').value = welcomeMessage; 
             updateVotingTimeDisplay();
         }
         if (tabName === 'advanced') {
             updateAdvancedFeaturesDisplay();
         }
-    }
-
-    // 💡 دالة لتحديث العنوان (شريط العنوان)
-    function updateSystemTitle() {
-        const newTitle = document.getElementById('systemTitle').value;
-        if (newTitle.trim() === "") {
-            showNotification("لا يمكن أن يكون العنوان فارغاً.", 'danger');
-            return;
-        }
-        systemTitle = newTitle.trim();
-        localStorage.setItem('systemTitle', systemTitle);
-        document.title = systemTitle; // **تغيير شريط العنوان**
-        updateMainStats();
-        showNotification("تم تحديث عنوان النظام بنجاح.", 'success');
     }
 
     function renderDashboardStats() {
@@ -2113,7 +2127,7 @@
             leaderName = leader.name;
         }
         
-        document.getElementById('currentElectionIdDisplay').textContent = currentElectionId; // **عرض معرّف الدورة**
+        document.getElementById('currentElectionIdDisplay').textContent = currentElectionId;
         document.getElementById('dashboardStatCandidates').textContent = candidates.length;
         document.getElementById('dashboardStatTotalVotes').textContent = totalVotes;
         document.getElementById('dashboardStatWinner').textContent = leaderName;
@@ -2121,19 +2135,28 @@
         document.getElementById('dashboardStatStatus').style.color = isVotingOpen ? 'var(--secondary)' : 'var(--danger)';
     }
 
-    // --- وظائف إدارة الوقت المُعدَّلة والمُضافة ---
+    // --- وظائف إدارة الوقت المُعدَّلة والمُضافة (تم إصلاح مشكلة التكرار هنا) ---
 
     function updateVotingTimeDisplay() {
         const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
         
-        document.getElementById('currentEndTime').textContent = votingEndTime.toLocaleString('ar-EG', options);
-        // عرض وقت البدء أيضاً
-        document.getElementById('currentEndTime').insertAdjacentHTML('beforebegin', `<div>وقت بدء التصويت:</div> <div class="time-value" id="currentStartTime">${votingStartTime.toLocaleString('ar-EG', options)}</div>`);
+        // 💡 **الحل لمشكلة التكرار:** استبدال المحتوى بالكامل في عنصر `time-display`
+        const timeDisplayElement = document.querySelector('#basic-tab .time-display');
+        
+        // **عرض وقت البدء**
+        const startTimeHTML = `<div>وقت بدء التصويت: <strong id="currentStartTimeDisplay">${votingStartTime.toLocaleString('ar-EG', options)}</strong></div>`;
 
+        // **عرض وقت الانتهاء**
+        const endTimeHTML = `
+            <div>وقت انتهاء التصويت الحالي:</div>
+            <div class="time-value" id="currentEndTime">${votingEndTime.toLocaleString('ar-EG', options)}</div>
+        `;
+        
+        const timeRemainingElement = document.getElementById('timeRemaining');
 
+        // تحديث الوقت المتبقي
         const now = new Date();
         const diff = votingEndTime.getTime() - now.getTime();
-        const timeRemainingElement = document.getElementById('timeRemaining');
 
         if (diff > 0 && now >= votingStartTime) {
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -2143,25 +2166,27 @@
 
             timeRemainingElement.textContent = `متبقي: ${days} يوم, ${hours} ساعة, ${minutes} دقيقة, ${seconds} ثانية`;
         } else if (now < votingStartTime) {
-            timeRemainingElement.textContent = `لم يبدأ بعد. سيبدأ بعد: ${new Date(votingStartTime.getTime() - now.getTime()).toISOString().substr(11, 8)}`;
+            timeRemainingElement.textContent = `لم يبدأ بعد. سيبدأ عند ${votingStartTime.toLocaleString('ar-EG', options)}`;
             isVotingOpen = false;
         } else {
             timeRemainingElement.textContent = "انتهى الوقت.";
             isVotingOpen = false;
         }
+        
+        // **إعادة تعيين المحتوى بالكامل لمنع التكرار (الأهم)**
+        timeDisplayElement.innerHTML = startTimeHTML + endTimeHTML;
+        timeDisplayElement.appendChild(timeRemainingElement); 
     }
 
     function extendVotingTime(hours) {
-        // إذا كان مغلقاً بسبب الانتهاء، نبدأ التمديد من الآن. إذا كان مفتوحاً، نمدد من النهاية الحالية
         if (new Date().getTime() >= votingEndTime.getTime()) {
             votingEndTime = new Date();
         }
         
         votingEndTime.setTime(votingEndTime.getTime() + (hours * 60 * 60 * 1000));
         localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
-        isVotingOpen = true; // نفتح التصويت
+        isVotingOpen = true; 
         
-        // إذا كان وقت البدء في الماضي، نجعله الآن
         if (votingStartTime.getTime() > new Date().getTime()) {
              votingStartTime = new Date();
              localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
@@ -2187,7 +2212,6 @@
         }
     }
     
-    // 💡 دالة تعيين وقت البدء (المطلوبة)
     function setSpecificStartTime() {
         const input = document.getElementById('newStartTimeInput').value;
         const newTime = new Date(input);
@@ -2204,7 +2228,6 @@
         showNotification("تم تعيين وقت بدء التصويت الجديد.", 'success');
     }
 
-    // 💡 دالة تعيين وقت الانتهاء (المطلوبة)
     function setSpecificEndTime() {
         const input = document.getElementById('newEndTimeInput').value;
         const newTime = new Date(input);
@@ -2222,7 +2245,7 @@
     }
     
     function lockVoting() {
-        votingEndTime = new Date(new Date().getTime() - 1000); // تعيين الوقت إلى الماضي
+        votingEndTime = new Date(new Date().getTime() - 1000); 
         localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
         isVotingOpen = false;
         updateVotingTimeDisplay();
@@ -2233,7 +2256,7 @@
 
     function unlockVoting() {
         votingStartTime = new Date();
-        votingEndTime = new Date(new Date().getTime() + (1 * 60 * 60 * 1000)); // ساعة من الآن
+        votingEndTime = new Date(new Date().getTime() + (1 * 60 * 60 * 1000));
         localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
         localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
         isVotingOpen = true;
@@ -2243,9 +2266,7 @@
         showNotification("تم تفعيل التصويت يدوياً لساعة واحدة، ويبدأ الآن.", 'success');
     }
 
-    // **********************************************
-    // 💡 وظيفة بدء دورة تصويت جديدة (لحظ المشكلة 2)
-    // **********************************************
+    // وظيفة بدء دورة تصويت جديدة (لحظ المشكلة 2)
     function startNewElectionCycle() {
         if (!confirm("تحذير: هل أنت متأكد من بدء دورة تصويت جديدة؟ سيؤدي ذلك إلى تصفير جميع الأصوات في Firebase وتوليد معرّف دورة جديد، مما يسمح للمستخدمين بالتصويت مجدداً.")) {
             return;
@@ -2257,34 +2278,27 @@
             updates[c.id + "/votes"] = 0;
         });
 
-        // 2. توليد معرّف دورة جديد (V2, V3, etc.)
         const currentNum = parseInt(currentElectionId.substring(1) || 0);
         const newId = `V${currentNum + 1}`;
 
-        database.ref('candidates').update(updates) // تصفير الأصوات
+        database.ref('candidates').update(updates)
             .then(() => {
-                // 3. تحديث معرّف الدورة في Firebase
                 return settingsRef.update({ electionId: newId });
             })
             .then(() => {
-                // 4. تحديث الوقت ليبدأ الآن
                 votingStartTime = new Date();
                 votingEndTime = new Date(votingStartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
                 localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
                 localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
-
-                // 5. مسح حالة التصويت المحلية للمتصفح الحالي (لأغراض النظافة)
-                // حالة التصويت لـ ID القديم لم تعد تُستخدم على أي حال
                 
                 showNotification(`✅ تم تصفير الأصوات وبدء الدورة الجديدة! المعرّف: ${newId} (التصويت مفتوح لـ 7 أيام)`, 'success');
-                // الاستماع على settingsRef سيحدث الواجهة تلقائياً
             })
             .catch((error) => {
                 showNotification(`حدث خطأ أثناء بدء الدورة الجديدة: ${error.message}`, 'danger');
             });
     }
 
-    // وظيفة تصفير الأصوات (تحديث جميع السجلات في Firebase) - تم تعديلها لتصبح خاصة بالأصوات فقط
+    // وظيفة تصفير الأصوات
     function resetAllVotes() {
         if (confirm("تحذير: هل أنت متأكد من تصفير جميع الأصوات لجميع المرشحين؟ لا يمكن التراجع عن هذا الإجراء.")) {
             const updates = {};
@@ -2306,16 +2320,17 @@
     function exportData() {
         const data = {
             SystemTitle: systemTitle,
-            VotingStartTime: votingStartTime.toISOString(), // **تم إضافة وقت البدء**
+            WelcomeMessage: welcomeMessage, // **تم إضافة الرسالة الترحيبية**
+            VotingStartTime: votingStartTime.toISOString(),
             VotingEndTime: votingEndTime.toISOString(),
-            ElectionId: currentElectionId, // **تم إضافة معرّف الدورة**
+            ElectionId: currentElectionId,
             Candidates: candidates
         };
         
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `election_data_EID_${currentElectionId}.json`); // **اسم الملف يتضمن الـ ID**
+        downloadAnchorNode.setAttribute("download", `election_data_EID_${currentElectionId}.json`);
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
@@ -2332,17 +2347,30 @@
         document.getElementById('particlesContainer').appendChild(particle);
     }
 
-    // --- الميزات المتقدمة الجديدة (لم تتغير) ---
-    // (باقي وظائف الميزات المتقدمة كما هي)
+    // --- الميزات المتقدمة الجديدة (إضافة دالات تحكم وهمية لتفعيل الأزرار) ---
+    function simulateMinorFailure() {
+        systemHealth.dataHealth = 75;
+        systemHealth.performance = 85;
+        localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
+        updateAdvancedFeaturesDisplay();
+        showNotification("⚠️ تم محاكاة فشل طفيف! صحة البيانات والأداء انخفضت.", 'warning');
+    }
+
+    function rebootSystemCheck() {
+        systemHealth.dataHealth = 99;
+        systemHealth.performance = 99;
+        localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
+        updateAdvancedFeaturesDisplay();
+        showNotification("✅ إعادة تشغيل فحص النظام: الأداء وصحة البيانات ممتازان الآن.", 'success');
+    }
+
     function updateAdvancedFeaturesDisplay() {
-        // تحديث شاشة صحة البيانات
         document.getElementById('dataHealthBar').style.width = systemHealth.dataHealth + '%';
         document.getElementById('dataHealthValue').textContent = systemHealth.dataHealth + '%';
         
         document.getElementById('performanceBar').style.width = systemHealth.performance + '%';
         document.getElementById('performanceValue').textContent = systemHealth.performance + '%';
         
-        // تحديث سجل النسخ الاحتياطي
         updateBackupLogDisplay();
     }
 
@@ -2434,7 +2462,7 @@
     function initApp() {
         document.getElementById('mainContent').style.display = 'block';
         updateAdvancedFeaturesDisplay();
-        updateSystemTitle(); // تأكد من تحميل العنوان في البداية
+        updateSystemTitle();
         
         // تحديث كل 1 ثانية
         setInterval(() => {
@@ -2456,8 +2484,8 @@
 
         // تحديث صحة البيانات تلقائياً كل دقيقة
         setInterval(() => {
-            systemHealth.dataHealth = Math.floor(Math.random() * 10) + 90; // 90-100%
-            systemHealth.performance = Math.floor(Math.random() * 5) + 95; // 95-100%
+            systemHealth.dataHealth = Math.floor(Math.random() * 10) + 90;
+            systemHealth.performance = Math.floor(Math.random() * 5) + 95;
             systemHealth.lastCheck = new Date().toISOString();
             localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
             
