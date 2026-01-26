@@ -1195,6 +1195,17 @@
 
                     <div id="titleMessage" style="margin-top: 10px;"></div>
 
+                    <div id="titleMessage" style="margin-top: 10px;"></div>
+
+<!-- إعلان مخصص للصفحة الرئيسية -->
+<div class="form-group">
+    <label><i class="fas fa-bullhorn"></i> إعلان مخصص للصفحة الرئيسية</label>
+    <input type="text" id="announcementTitleInput" class="form-control" placeholder="عنوان الإعلان (اختياري)">
+    <textarea id="announcementTextInput" class="form-control" rows="3" placeholder="نص الإعلان... (اتركه فارغاً لإخفاء الإعلان)"></textarea>
+    <button onclick="saveAnnouncement()" class="btn btn-info" style="margin-top: 10px;">
+        <i class="fas fa-save"></i> حفظ الإعلان
+    </button>
+</div>
                     <h3 style="margin-top: 30px;"><i class="fas fa-clock"></i> إعدادات الوقت والدورة</h3>
 
                     <div class="time-display">
@@ -2547,6 +2558,53 @@ databaseURL: "https://election-voting-system-89aed-default-rtdb.europe-west1.fir
     }
 
     document.addEventListener('DOMContentLoaded', initApp);
+    // حفظ وعرض الإعلان المخصص
+function saveAnnouncement() {
+    const title = document.getElementById('announcementTitleInput').value.trim();
+    const text = document.getElementById('announcementTextInput').value.trim();
+    
+    if (text) {
+        localStorage.setItem('customAnnouncementTitle', title);
+        localStorage.setItem('customAnnouncementText', text);
+        showNotification('تم حفظ الإعلان! سيظهر في الصفحة الرئيسية.', 'success');
+        
+        // تحديث العرض إذا كان المستخدم في الصفحة الرئيسية
+        if (document.getElementById('announcementTitle')) {
+            document.getElementById('announcementTitle').textContent = title || 'إعلان';
+            document.getElementById('announcementText').textContent = text;
+            document.getElementById('customAnnouncement').style.display = 'block';
+        }
+    } else {
+        // إذا كان النص فارغاً، نخفي الإعلان
+        localStorage.removeItem('customAnnouncementTitle');
+        localStorage.removeItem('customAnnouncementText');
+        
+        if (document.getElementById('customAnnouncement')) {
+            document.getElementById('customAnnouncement').style.display = 'none';
+        }
+        
+        showNotification('تم إخفاء الإعلان (الحقل فارغ).', 'info');
+    }
+}
+
+// عند تحميل الصفحة، نعرض الإعلان إذا كان موجوداً
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTitle = localStorage.getItem('customAnnouncementTitle') || '';
+    const savedText = localStorage.getItem('customAnnouncementText') || '';
+    
+    // إذا كان هناك إعلان محفوظ، نعرضه
+    if (savedText && document.getElementById('customAnnouncement')) {
+        document.getElementById('announcementTitle').textContent = savedTitle || 'إعلان';
+        document.getElementById('announcementText').textContent = savedText;
+        document.getElementById('customAnnouncement').style.display = 'block';
+    }
+    
+    // تعبئة الحقول في لوحة التحكم
+    if (document.getElementById('announcementTitleInput')) {
+        document.getElementById('announcementTitleInput').value = savedTitle;
+        document.getElementById('announcementTextInput').value = savedText;
+    }
+});
 </script>
 </body>
 </html>
