@@ -1555,6 +1555,101 @@
         </section>
     </div>
 
+    <!-- قسم الاقتراحات للتصويت القادم -->
+<section class="suggestions-section" style="margin: 40px 0;">
+    <div class="security-panel">
+        <h3><i class="fas fa-lightbulb"></i> اقتراحات للتصويت القادم</h3>
+        
+        <div style="text-align: center; padding: 20px;">
+            <h4 style="color: var(--secondary); margin-bottom: 15px;">
+                <i class="fas fa-vote-yea"></i> ماذا تريد أن تصوت عليه المرة القادمة؟
+            </h4>
+            
+            <p style="margin-bottom: 20px; font-size: 1.1rem;">
+                هل لديك اقتراح لموضوع تصويت جديد؟<br>
+                <strong>راسلني على واتساب</strong> وسأضيفه في الجولة القادمة
+            </p>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 20px 0; text-align: right;">
+                <h5 style="color: var(--gold);"><i class="fas fa-briefcase"></i> مثال: التصويت على أفضل شركات المقاولات</h5>
+                <p style="margin: 10px 0;">
+                    <i class="fas fa-info-circle"></i> يمكن للمستخدمين إرسال أسماء الشركات ليتم إضافتها في التصويت القادم
+                </p>
+            </div>
+            
+            <!-- خيار 1: إدخال نص ومراسلة مباشرة -->
+            <div style="margin: 25px 0;">
+                <input type="text" 
+                       id="suggestionInput" 
+                       placeholder="اكتب اسم الشركة أو الموضوع هنا..."
+                       style="width: 80%; max-width: 400px; padding: 12px 15px; border-radius: 8px; border: 2px solid var(--secondary); background: rgba(255,255,255,0.15); color: white; text-align: center; font-size: 1rem;">
+            </div>
+            
+            <button onclick="sendSuggestion()" 
+                    class="vote-btn" 
+                    style="background: linear-gradient(135deg, #25D366, #128C7E); max-width: 350px; margin: 10px auto; font-size: 1.1rem;">
+                <i class="fab fa-whatsapp"></i> إرسال الاقتراح على واتساب
+            </button>
+            
+            <!-- خيار 2: زر مباشر بدون إدخال -->
+            <a href="https://wa.me/009647813105317?text=أقترح%20موضوع%20تصويت%20جديد%20للنظام%20الانتخابي%20الذكي:%20" 
+               target="_blank" 
+               class="vote-btn" 
+               style="background: linear-gradient(135deg, #075E54, #128C7E); max-width: 350px; margin: 15px auto; font-size: 1rem;">
+                <i class="fas fa-comments"></i> راسلني مباشرة على واتساب
+            </a>
+            
+            <div style="margin-top: 25px; padding: 15px; background: rgba(0,200,83,0.1); border-radius: 10px; border: 1px solid var(--secondary);">
+                <p style="margin: 0;">
+                    <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                    <strong>كيف تعمل:</strong>
+                    <br>1. يقترح المستخدمون مواضيع جديدة
+                    <br>2. أضيف أكثر الاقتراحات شعبية
+                    <br>3. يتم التصويت في الجولة القادمة
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function sendSuggestion() {
+    const input = document.getElementById('suggestionInput');
+    let suggestion = input.value.trim();
+    
+    // إذا لم يدخل نص، استخدم نص افتراضي
+    if (!suggestion) {
+        suggestion = "أقترح إضافة موضوع تصويت جديد للنظام الانتخابي";
+    }
+    
+    // رقم واتساب الخاص بك
+    const phoneNumber = '009647813105317';
+    
+    // رسالة جاهزة للمقاولات (يمكن تعديلها)
+    const message = `📋 *اقتراح موضوع تصويت جديد*
+    
+🔹 *الموضوع المقترح:* 
+"${suggestion}"
+
+🔹 *التفاصيل:*
+يرجى إضافة هذا الموضوع في الجولة القادمة للنظام الانتخابي الذكي.
+
+🔹 *معلومات المرسل:*
+مستخدم النظام - ${new Date().toLocaleDateString('ar-EG')}`;
+    
+    // ترميز الرسالة
+    const encodedMessage = encodeURIComponent(message);
+    
+    // فتح واتساب
+    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+    
+    // تفريغ الحقل
+    input.value = '';
+    
+    // رسالة تأكيد
+    showNotification('📱 تم فتح واتساب، أرسل اقتراحك الآن!', 'success');
+}
+</script>
     <div class="admin-access">
         <button class="admin-btn" id="adminAccessBtn">
             <i class="fas fa-user-lock"></i> وصول المسؤول
