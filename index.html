@@ -2568,33 +2568,6 @@ database.ref('announcement').on('value', (snapshot) => {
 
     document.addEventListener('DOMContentLoaded', initApp);
     // حفظ وعرض الإعلان المخصص
-function saveAnnouncement() {
-    const title = document.getElementById('announcementTitleInput').value.trim();
-    const text = document.getElementById('announcementTextInput').value.trim();
-    
-    if (text) {
-        localStorage.setItem('customAnnouncementTitle', title);
-        localStorage.setItem('customAnnouncementText', text);
-        showNotification('تم حفظ الإعلان! سيظهر في الصفحة الرئيسية.', 'success');
-        
-        // تحديث العرض إذا كان المستخدم في الصفحة الرئيسية
-        if (document.getElementById('announcementTitle')) {
-            document.getElementById('announcementTitle').textContent = title || 'إعلان';
-            document.getElementById('announcementText').textContent = text;
-            document.getElementById('customAnnouncement').style.display = 'block';
-        }
-    } else {
-        // إذا كان النص فارغاً، نخفي الإعلان
-        localStorage.removeItem('customAnnouncementTitle');
-        localStorage.removeItem('customAnnouncementText');
-        
-        if (document.getElementById('customAnnouncement')) {
-            document.getElementById('customAnnouncement').style.display = 'none';
-        }
-        
-        showNotification('تم إخفاء الإعلان (الحقل فارغ).', 'info');
-    }
-}
 
 // عند تحميل الصفحة، نعرض الإعلان إذا كان موجوداً
 document.addEventListener('DOMContentLoaded', function() {
