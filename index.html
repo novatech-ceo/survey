@@ -1195,17 +1195,6 @@
 
                     <div id="titleMessage" style="margin-top: 10px;"></div>
 
-                    <div id="titleMessage" style="margin-top: 10px;"></div>
-
-<!-- إعلان مخصص للصفحة الرئيسية -->
-<div class="form-group">
-    <label><i class="fas fa-bullhorn"></i> إعلان مخصص للصفحة الرئيسية</label>
-    <input type="text" id="announcementTitleInput" class="form-control" placeholder="عنوان الإعلان (اختياري)">
-    <textarea id="announcementTextInput" class="form-control" rows="3" placeholder="نص الإعلان... (اتركه فارغاً لإخفاء الإعلان)"></textarea>
-    <button onclick="saveAnnouncement()" class="btn btn-info" style="margin-top: 10px;">
-        <i class="fas fa-save"></i> حفظ الإعلان
-    </button>
-</div>
                     <h3 style="margin-top: 30px;"><i class="fas fa-clock"></i> إعدادات الوقت والدورة</h3>
 
                     <div class="time-display">
@@ -1495,6 +1484,7 @@
             <p id="welcomeMessageDisplay">مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.</p>
 
             <div class="advanced-features-panel">
+                <h3><i class="fas fa-rocket"></i> الميزات المتقدمة للنظام (الدورة الحالية: <span id="mainElectionIdDisplay">V1</span>)</h3>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <i class="fas fa-shield-alt feature-icon"></i>
@@ -1525,14 +1515,6 @@
                 <div id="votingMessage"></div>
             </div>
 
-            <!-- إعلان مخصص من المسؤول -->
-<div id="customAnnouncement" class="security-panel" style="display: none; background: linear-gradient(135deg, rgba(126, 87, 194, 0.3), rgba(103, 58, 183, 0.3));">
-    <h3><i class="fas fa-bullhorn"></i> <span id="announcementTitle">إعلان</span></h3>
-    <p id="announcementText" style="font-size: 1.1rem; line-height: 1.6; text-align: center;"></p>
-    <div style="text-align: left; font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">
-        <i class="fas fa-user-shield"></i> من إدارة النظام
-    </div>
-</div>
             <div class="social-share">
                 <a href="javascript:void(0);" onclick="shareOnSocial('facebook')" class="social-btn facebook"><i class="fab fa-facebook-f"></i></a>
                 <a href="javascript:void(0);" onclick="shareOnSocial('twitter')" class="social-btn twitter"><i class="fab fa-twitter"></i></a>
@@ -1573,45 +1555,7 @@
                 </div>
         </section>
     </div>
-    
-<script>
-function sendSuggestion() {
-    const input = document.getElementById('suggestionInput');
-    let suggestion = input.value.trim();
-    
-    // إذا لم يدخل نص، استخدم نص افتراضي
-    if (!suggestion) {
-        suggestion = "أقترح إضافة موضوع تصويت جديد للنظام الانتخابي";
-    }
-    
-    // رقم واتساب الخاص بك
-    const phoneNumber = '009647813105317';
-    
-    // رسالة جاهزة للمقاولات (يمكن تعديلها)
-    const message = `📋 *اقتراح موضوع تصويت جديد*
-    
-🔹 *الموضوع المقترح:* 
-"${suggestion}"
 
-🔹 *التفاصيل:*
-يرجى إضافة هذا الموضوع في الجولة القادمة للنظام الانتخابي الذكي.
-
-🔹 *معلومات المرسل:*
-مستخدم النظام - ${new Date().toLocaleDateString('ar-EG')}`;
-    
-    // ترميز الرسالة
-    const encodedMessage = encodeURIComponent(message);
-    
-    // فتح واتساب
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
-    
-    // تفريغ الحقل
-    input.value = '';
-    
-    // رسالة تأكيد
-    showNotification('📱 تم فتح واتساب، أرسل اقتراحك الآن!', 'success');
-}
-</script>
     <div class="admin-access">
         <button class="admin-btn" id="adminAccessBtn">
             <i class="fas fa-user-lock"></i> وصول المسؤول
@@ -1622,16 +1566,16 @@ function sendSuggestion() {
     // *****************************************************************
     // 1. مفاتيحك الخاصة لربط Firebase
     // *****************************************************************
-   const firebaseConfig = {
-  apiKey: "AIzaSyDqT2m55ULjiHn-zs58C7YG_wJzae2lRHs",
-  authDomain: "election-voting-system-89aed.firebaseapp.com",
-databaseURL: "https://election-voting-system-89aed-default-rtdb.europe-west1.firebasedatabase.app/",
-  projectId: "election-voting-system-89aed",
-  storageBucket: "election-voting-system-89aed.firebasestorage.app",
-  messagingSenderId: "104907607761",
-  appId: "1:104907607761:web:e1f3775b137cb4fe643ff0",
-  measurementId: "G-D3K8MQ3WSZ"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOt_wSsxdFIfI_waLgEURgrtbfb1yuhBE",
+      authDomain: "smart-election-system-7850b.firebaseapp.com",
+      databaseURL: "https://smart-election-system-7850b-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "smart-election-system-7850b",
+      storageBucket: "smart-election-system-7850b.firebasestorage.app",
+      messagingSenderId: "605066227180",
+      appId: "1:605066227180:web:bbde6ecf8d44d8e19c64c9",
+      measurementId: "G-DC5VCHDCHS"
+    };
 
     // تهيئة Firebase والاتصال بقاعدة البيانات
     firebase.initializeApp(firebaseConfig);
@@ -2558,53 +2502,6 @@ databaseURL: "https://election-voting-system-89aed-default-rtdb.europe-west1.fir
     }
 
     document.addEventListener('DOMContentLoaded', initApp);
-    // حفظ وعرض الإعلان المخصص
-function saveAnnouncement() {
-    const title = document.getElementById('announcementTitleInput').value.trim();
-    const text = document.getElementById('announcementTextInput').value.trim();
-    
-    if (text) {
-        localStorage.setItem('customAnnouncementTitle', title);
-        localStorage.setItem('customAnnouncementText', text);
-        showNotification('تم حفظ الإعلان! سيظهر في الصفحة الرئيسية.', 'success');
-        
-        // تحديث العرض إذا كان المستخدم في الصفحة الرئيسية
-        if (document.getElementById('announcementTitle')) {
-            document.getElementById('announcementTitle').textContent = title || 'إعلان';
-            document.getElementById('announcementText').textContent = text;
-            document.getElementById('customAnnouncement').style.display = 'block';
-        }
-    } else {
-        // إذا كان النص فارغاً، نخفي الإعلان
-        localStorage.removeItem('customAnnouncementTitle');
-        localStorage.removeItem('customAnnouncementText');
-        
-        if (document.getElementById('customAnnouncement')) {
-            document.getElementById('customAnnouncement').style.display = 'none';
-        }
-        
-        showNotification('تم إخفاء الإعلان (الحقل فارغ).', 'info');
-    }
-}
-
-// عند تحميل الصفحة، نعرض الإعلان إذا كان موجوداً
-document.addEventListener('DOMContentLoaded', function() {
-    const savedTitle = localStorage.getItem('customAnnouncementTitle') || '';
-    const savedText = localStorage.getItem('customAnnouncementText') || '';
-    
-    // إذا كان هناك إعلان محفوظ، نعرضه
-    if (savedText && document.getElementById('customAnnouncement')) {
-        document.getElementById('announcementTitle').textContent = savedTitle || 'إعلان';
-        document.getElementById('announcementText').textContent = savedText;
-        document.getElementById('customAnnouncement').style.display = 'block';
-    }
-    
-    // تعبئة الحقول في لوحة التحكم
-    if (document.getElementById('announcementTitleInput')) {
-        document.getElementById('announcementTitleInput').value = savedTitle;
-        document.getElementById('announcementTextInput').value = savedText;
-    }
-});
 </script>
 </body>
 </html>
