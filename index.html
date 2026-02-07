@@ -2514,6 +2514,17 @@ databaseURL: "https://election-voting-system-89aed-default-rtdb.europe-west1.fir
 
     // --- وظيفة التهيئة الرئيسية ---
     function initApp() {
+        // استمع للإعلان من Firebase
+database.ref('announcement').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.text) {
+        document.getElementById('announcementTitle').textContent = data.title || 'إعلان';
+        document.getElementById('announcementText').textContent = data.text;
+        document.getElementById('customAnnouncement').style.display = 'block';
+    } else {
+        document.getElementById('customAnnouncement').style.display = 'none';
+    }
+});
         document.getElementById('mainContent').style.display = 'block';
         updateAdvancedFeaturesDisplay();
         updateSystemTitle();
