@@ -1596,7 +1596,10 @@
         };
 
         // تهيئة Firebase والاتصال بقاعدة البيانات
-        firebase.initializeApp(firebaseConfig);
+      // تهيئة Firebase مع تعطيل التخزين
+const app = firebase.initializeApp(firebaseConfig);
+// تعطيل خدمة Storage لمنع أخطاء 403
+delete app.storage;
         const database = firebase.database();
         const candidatesRef = database.ref('candidates');
         const settingsRef = database.ref('settings');
