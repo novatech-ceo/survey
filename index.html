@@ -1839,12 +1839,16 @@ delete app.storage;
             showNotification("تم تسجيل الخروج بنجاح.", 'info');
             document.getElementById('mainContent').style.display = 'block';
         }
-        // --- وظائف إدارة كلمات المرور ---
-function changeAdminPasswords() {
-    showNotification("❌ هذه الخاصية معطلة حالياً", 'danger');
-    document.getElementById('newFirstPassword').value = '';
-    document.getElementById('newSecondPassword').value = '';
-}
+        
+            // --- وظائف إدارة كلمات المرور ---
+            function changeAdminPasswords() {
+            const newPass1 = document.getElementById('newFirstPassword').value;
+            const newPass2 = document.getElementById('newSecondPassword').value;
+
+            if (newPass1.length < 6 || newPass2.length < 6) {
+                showNotification("يجب أن تكون كلتا كلمتي المرور 6 أحرف على الأقل.", 'danger');
+                return;
+            }
             firstPassword = newPass1;
             secondPassword = newPass2;
             localStorage.setItem(ADMIN_PASS_1, newPass1);
