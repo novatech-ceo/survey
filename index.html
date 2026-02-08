@@ -2621,6 +2621,30 @@ delete app.storage;
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
+        // طريقة مخفية لفتح لوحة المسؤول
+// اضغط على زر ALT واكتب "admin" ثم اضغط Enter
+let adminKeys = [];
+document.addEventListener('keydown', function(e) {
+    adminKeys.push(e.key);
+    
+    // نحتفظ فقط بآخر 5 ضغطات
+    if (adminKeys.length > 5) {
+        adminKeys.shift();
+    }
+    
+    // إذا كان المستخدم يضغط على ALT وكتابة "admin"
+    if (adminKeys.join('').toLowerCase().includes('altadmin')) {
+        document.querySelector('.admin-access').style.display = 'block';
+        showNotification("تم تفعيل زر المسؤول", 'info');
+        adminKeys = []; // إعادة تعيين
+    }
+    
+    // طريقة أخرى: Ctrl+Shift+A
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        document.querySelector('.admin-access').style.display = 'block';
+        showNotification("تم تفعيل زر المسؤول", 'info');
+    }
+});
     </script>
 </body>
 </html>
