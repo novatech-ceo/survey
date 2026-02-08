@@ -1576,7 +1576,7 @@
     </div>
 
     <div class="admin-access">
-        <button class="admin-btn" id="adminAccessBtn">
+     <button class="admin-btn" id="adminAccessBtn" style="display: none;">
             <i class="fas fa-user-lock"></i> وصول المسؤول
         </button>
     </div>
@@ -2620,6 +2620,33 @@ delete app.storage;
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
+        // زر المسؤول المخفي - للوصول: انقر 3 مرات في الزاوية اليمنى السفلى
+let adminClickCount = 0;
+let lastClickTime = 0;
+
+document.addEventListener('click', function(e) {
+    // الزاوية اليمنى السفلى (أسفل 100px، يمين 100px)
+    const cornerX = window.innerWidth - e.clientX;
+    const cornerY = window.innerHeight - e.clientY;
+    
+    if (cornerX < 100 && cornerY < 100) {
+        const now = Date.now();
+        
+        if (now - lastClickTime < 1000) {
+            adminClickCount++;
+        } else {
+            adminClickCount = 1;
+        }
+        
+        lastClickTime = now;
+        
+        if (adminClickCount >= 3) {
+            document.getElementById('adminAccessBtn').style.display = 'flex';
+            showNotification("تم إظهار زر المسؤول", 'info');
+            adminClickCount = 0;
+        }
+    }
+});
     </script>
 </body>
 </html>
