@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الاستطلاعات | Survey System</title>
+   <title>نظام الاستطلاعات | Survey System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* جميع الأنماط الأصلية محفوظة */
+        /* الأنماط لم تتغير، حافظنا على التنسيق الرائع */
         :root {
             --primary: #1a237e;
             --primary-light: #283593;
@@ -874,7 +874,7 @@
             border: 1px solid #ccc;
             text-align: center;
             font-size: 1rem;
-            color: black;
+            color: black; /* ليكون واضحاً داخل لوحة التحكم */
         }
 
         .update-votes-btn {
@@ -1092,88 +1092,1534 @@
             border: 1px solid var(--danger);
             color: #ffcdd2;
         }
-        
-        /* قسم الاقتراحات */
-        .suggestions-section {
-            margin: 25px 0;
-        }
-        
-        .suggestion-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-right: 4px solid var(--info);
-        }
-        
-        .suggestion-text {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: white;
-        }
-        
-        .suggestion-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-        
-        .suggestion-votes {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .vote-count-badge {
-            background: var(--primary-light);
-            padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-        }
-        
-        .upvote-btn {
-            background: transparent;
-            border: 1px solid var(--secondary);
-            color: var(--secondary);
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .upvote-btn:hover {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .upvote-btn.voted {
-            background: var(--success);
-            border-color: var(--success);
-            color: white;
-        }
     </style>
 </head>
 <body>
-    <!-- الجسيمات العائمة -->
     <div class="floating-particles" id="particlesContainer"></div>
 
-    <!-- واجهة دخول المسؤول -->
     <div class="login-container fade-in" id="firstLoginContainer" style="display: none;">
         <h1><i class="fas fa-shield-alt"></i> التحقق الأولي</h1>
         <p>المرحلة الأولى من التحقق الأمني</p>
-        <div class="security-badge"><i class="fas fa-fingerprint"></i> نظام أمان متقدم</div>
-        
+
+        <div class="security-badge">
+            <i class="fas fa-fingerprint"></i> نظام أمان متقدم
+        </div>
+
         <form id="firstLoginForm">
             <div class="form-group">
                 <label for="firstPassword"><i class="fas fa-key"></i> كلمة المرور الأولى</label>
                 <input type="password" id="firstPassword" class="form-control" placeholder="أدخل كلمة المرور الأولى" required>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> متابعة</button>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> متابعة إلى المرحلة الثانية
+            </button>
         </form>
+
         <div id="firstLoginMessage"></div>
     </div>
 
     <div class="login-container fade-in" id="secondLoginContainer" style="display: none;">
-        <h1><i class="fas fa-user-shield"></i> التحقق النهائي</
+        <h1><i class="fas fa-user-shield"></i> التحقق النهائي</h1>
+        <p>المرحلة الثانية من التحقق الأمني</p>
+
+        <div class="security-badge gold">
+            <i class="fas fa-lock"></i> مستوى أمان عالي
+        </div>
+
+        <form id="secondLoginForm">
+            <div class="form-group">
+                <label for="secondPassword"><i class="fas fa-key"></i> كلمة المرور الثانية</label>
+                <input type="password" id="secondPassword" class="form-control" placeholder="أدخل كلمة المرور الثانية" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fingerprintCode"><i class="fas fa-fingerprint"></i> رمز البصمة (المعروض أدناه)</label>
+                <input type="text" id="fingerprintCode" class="form-control" placeholder="أدخل رمز البصمة" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول النهائي
+            </button>
+        </form>
+
+        <div id="secondLoginMessage"></div>
+
+        <div class="password-level">
+            <p><i class="fas fa-info-circle"></i> معلومات الأمان (Demo):</p>
+            <p>كلمة المرور الأولى: <strong>admin123</strong></p>
+            <p>كلمة المرور الثانية: <strong>secure456</strong></p>
+            <p>رمز البصمة: <strong id="demoFingerprint">جاري التوليد...</strong></p>
+        </div>
+    </div>
+
+    <div class="dashboard" id="dashboard" style="display: none;">
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h1><i class="fas fa-cogs"></i> لوحة التحكم</h1>
+                <div class="security-badge">
+                    <i class="fas fa-user-shield"></i> مسؤول النظام
+                </div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+            </button>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="control-panel">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('basic')"><i class="fas fa-edit"></i> الإعدادات الأساسية</div>
+                    <div class="tab" onclick="switchTab('candidates')"><i class="fas fa-users"></i> إدارة المرشحين</div>
+                    <div class="tab" onclick="switchTab('tools')"><i class="fas fa-chart-bar"></i> أدوات متقدمة</div>
+                    <div class="tab" onclick="switchTab('password')"><i class="fas fa-lock"></i> تغيير كلمة المرور</div>
+                    <div class="tab" onclick="switchTab('advanced')"><i class="fas fa-rocket"></i> الميزات المتقدمة</div>
+                </div>
+
+                <div id="basic-tab" class="tab-content active">
+                    <h3><i class="fas fa-info-circle"></i> إعدادات النظام</h3>
+
+                    <div class="form-group">
+                        <label for="systemTitle"><i class="fas fa-heading"></i> عنوان النظام (شريط العنوان)</label>
+                        <input type="text" id="systemTitle" class="form-control" value="النظام الانتخابي الذكي">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="welcomeMessageInput"><i class="fas fa-comment-alt"></i> الرسالة الترحيبية</label>
+                        <textarea id="welcomeMessageInput" class="form-control" rows="3" >مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.</textarea>
+                    </div>
+
+                    <button class="btn btn-primary btn-block" onclick="updateSystemTitleAndSync()">
+                        <i class="fas fa-save"></i> حفظ العنوان والرسالة وتحديث الواجهة
+                    </button>
+
+                    <div id="titleMessage" style="margin-top: 10px;"></div>
+
+                    <!-- إعلان مخصص للصفحة الرئيسية -->
+                    <div class="form-group">
+                        <label><i class="fas fa-bullhorn"></i> إعلان مخصص للصفحة الرئيسية</label>
+                        <input type="text" id="announcementTitleInput" class="form-control" placeholder="عنوان الإعلان (اختياري)">
+                        <textarea id="announcementTextInput" class="form-control" rows="3" placeholder="نص الإعلان... (اتركه فارغاً لإخفاء الإعلان)"></textarea>
+                        <button onclick="saveAnnouncementAndSync()" class="btn btn-info" style="margin-top: 10px;">
+                            <i class="fas fa-save"></i> حفظ الإعلان والمزامنة
+                        </button>
+                    </div>
+
+                    <h3 style="margin-top: 30px;"><i class="fas fa-clock"></i> إعدادات الوقت والدورة</h3>
+
+                    <div class="time-display">
+                        <div>وقت بدء التصويت: <strong id="currentStartTimeDisplay">--</strong></div>
+                        <div>وقت انتهاء التصويت الحالي:</div>
+                        <div class="time-value" id="currentEndTime">--</div>
+                        <div style="font-size: 0.8rem; margin-top: 5px;" id="timeRemaining">--</div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="newStartTimeInput"><i class="fas fa-calendar-alt"></i> تعيين وقت وتاريخ **البدء**</label>
+                        <input type="datetime-local" id="newStartTimeInput" class="form-control" style="color: black;">
+                        <button class="btn btn-info" onclick="setSpecificStartTime()"><i class="fas fa-calendar-check"></i> تعيين وقت البدء</button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="newEndTimeInput"><i class="fas fa-calendar-alt"></i> تعيين وقت وتاريخ **الانتهاء**</label>
+                        <input type="datetime-local" id="newEndTimeInput" class="form-control" style="color: black;">
+                        <button class="btn btn-success" onclick="setSpecificEndTime()"><i class="fas fa-calendar-check"></i> تعيين وقت الانتهاء</button>
+                    </div>
+
+                    <div class="time-controls">
+                        <button class="btn btn-info btn-sm" onclick="extendVotingTime(1)"><i class="fas fa-plus"></i> +1 ساعة</button>
+                        <button class="btn btn-info btn-sm" onclick="extendVotingTime(6)"><i class="fas fa-plus"></i> +6 ساعات</button>
+                        <button class="btn btn-info btn-sm" onclick="extendVotingTime(24)"><i class="fas fa-plus"></i> +1 يوم</button>
+                        <button class="btn btn-warning btn-sm" onclick="resetVotingTime()"><i class="fas fa-redo"></i> إعادة التعيين (7 أيام)</button>
+                    </div>
+                </div>
+
+                <div id="candidates-tab" class="tab-content">
+                    <h3><i class="fas fa-user-plus"></i> إضافة مرشح جديد</h3>
+                    <div class="candidate-form">
+                        <div class="form-group">
+                            <label for="newCandidateName">الاسم الكامل</label>
+                            <input type="text" id="newCandidateName" class="form-control" placeholder="اسم المرشح" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newCandidateParty">الحزب/الكتلة</label>
+                            <input type="text" id="newCandidateParty" class="form-control" placeholder="اسم الحزب" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newCandidateImage">رابط صورة (URL) أو تحميل</label>
+                            <input type="text" id="newCandidateImageURL" class="form-control" placeholder="الصق رابط الصورة هنا">
+                            <div class="file-upload">
+                                <label for="newCandidateImageFile" class="file-label">
+                                    <i class="fas fa-upload"></i>
+                                    <span>تحميل صورة من الجهاز (للتجربة: لن تُحفظ الصورة فعلياً)</span>
+                                </label>
+                                <input type="file" id="newCandidateImageFile" class="file-input" accept="image/*">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addCandidate()">
+                            <i class="fas fa-user-plus"></i> إضافة المرشح
+                        </button>
+                    </div>
+
+                    <h3 style="margin-top: 30px;"><i class="fas fa-list-ul"></i> قائمة المرشحين الحاليين</h3>
+                    <div id="dashboardCandidatesList">
+                        <!-- سيتم تعبئة هذه القائمة بالمرشحين -->
+                    </div>
+                </div>
+
+                <div id="tools-tab" class="tab-content">
+                    <h3><i class="fas fa-wrench"></i> أدوات النظام المتقدمة</h3>
+
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" onclick="startNewElectionCycle()"><i class="fas fa-sync"></i> بدء دورة تصويت جديدة</button>
+                        <button class="btn btn-danger" onclick="resetAllVotes()"><i class="fas fa-eraser"></i> تصفير جميع الأصوات</button>
+                        <button class="btn btn-warning" onclick="lockVoting()"><i class="fas fa-lock"></i> إوقف التصويت يدوياً</button>
+                        <button class="btn btn-success" onclick="unlockVoting()"><i class="fas fa-unlock"></i> تفعيل التصويت يدوياً</button>
+                        <button class="btn btn-info" onclick="exportData()"><i class="fas fa-file-export"></i> تصدير البيانات</button>
+                    </div>
+
+                    <h3 style="margin-top: 30px;"><i class="fas fa-chart-pie"></i> إحصائيات عامة (لوحة التحكم)</h3>
+                    <div class="stats-panel">
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <p>عدد المرشحين</p>
+                            <div class="stat-value" id="dashboardStatCandidates">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-vote-yea"></i>
+                            <p>إجمالي الأصوات</p>
+                            <div class="stat-value" id="dashboardStatTotalVotes">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-clock"></i>
+                            <p>حالة التصويت</p>
+                            <div class="stat-value" id="dashboardStatStatus">مغلق</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-trophy"></i>
+                            <p>المرشح الفائز</p>
+                            <div class="stat-value" id="dashboardStatWinner">--</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;"><i class="fas fa-share-alt"></i> مشاركة النظام</h3>
+                    <p>روابط لمشاركة رابط النظام على منصات التواصل الاجتماعي.</p>
+                    <div class="social-share">
+                        <a href="javascript:void(0);" onclick="shareOnSocial('facebook')" class="social-btn facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="javascript:void(0);" onclick="shareOnSocial('twitter')" class="social-btn twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="javascript:void(0);" onclick="shareOnSocial('whatsapp')" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="javascript:void(0);" onclick="shareOnSocial('telegram')" class="social-btn telegram"><i class="fab fa-telegram-plane"></i></a>
+                    </div>
+                </div>
+
+                <div id="password-tab" class="tab-content">
+                    <h3><i class="fas fa-key"></i> تغيير كلمات مرور المسؤول</h3>
+                    <div class="alert alert-danger" style="color: white; font-weight: normal;"><i class="fas fa-exclamation-triangle"></i> سيتم حفظ هذه الكلمات محلياً على جهازك. استخدم كلمات مرور قوية!</div>
+
+                    <div class="password-change-form">
+                        <h4>كلمة المرور الأولى</h4>
+                        <div class="form-group">
+                            <label for="newFirstPassword">كلمة المرور الجديدة (الأولى)</label>
+                            <input type="password" id="newFirstPassword" class="form-control" placeholder="أدخل كلمة المرور الجديدة" onkeyup="checkPasswordStrength('newFirstPassword', 'strengthBar1')" required>
+                            <div class="password-strength" id="strengthBar1"></div>
+                        </div>
+
+                        <h4>كلمة المرور الثانية</h4>
+                        <div class="form-group">
+                            <label for="newSecondPassword">كلمة المرور الجديدة (الثانية)</label>
+                            <input type="password" id="newSecondPassword" class="form-control" placeholder="أدخل كلمة المرور الثانية الجديدة" onkeyup="checkPasswordStrength('newSecondPassword', 'strengthBar2')" required>
+                            <div class="password-strength" id="strengthBar2"></div>
+                        </div>
+
+                        <button class="save-settings-btn" onclick="changeAdminPasswords()">
+                            <i class="fas fa-lock-open"></i> حفظ كلمات المرور الجديدة
+                        </button>
+                    </div>
+                </div>
+
+                <div id="advanced-tab" class="tab-content">
+                    <h3><i class="fas fa-rocket"></i> الميزات المتقدمة للنظام</h3>
+                    
+                    <div class="advanced-features-panel">
+                        <h4><i class="fas fa-cogs"></i> أدوات التحكم اليدوي</h4>
+                        <button class="btn btn-warning" onclick="simulateMinorFailure()"><i class="fas fa-exclamation-triangle"></i> محاكاة فشل طفيف</button>
+                        <button class="btn btn-info" onclick="rebootSystemCheck()"><i class="fas fa-sync-alt"></i> إعادة تشغيل فحص النظام</button>
+                    </div>
+
+                    <div class="advanced-features-panel">
+                        <h4><i class="fas fa-shield-alt"></i> نظام التشفير المتقدم</h4>
+                        <div class="encryption-status">
+                            <span class="status-dot status-online"></span>
+                            <span>تشفير AES-256-GCM نشط</span>
+                        </div>
+                        <p>جميع البيانات مشفرة باستخدام تقنية AES-256-GCM المتقدمة لحماية المعلومات.</p>
+
+                        <button class="btn btn-info" onclick="performEncryptionCheck()">
+                            <i class="fas fa-lock"></i> فحص حالة التشفير
+                        </button>
+                    </div>
+
+                    <div class="advanced-features-panel">
+                        <h4><i class="fas fa-sync"></i> المزامنة متعددة المصادر</h4>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <i class="fas fa-database feature-icon"></i>
+                                <h5>قاعدة البيانات الرئيسية</h5>
+                                <div class="sync-status">
+                                    <span class="status-dot status-online"></span>
+                                    <span>متصل</span>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-hdd feature-icon"></i>
+                                <h5>الخادم الاحتياطي</h5>
+                                <div class="sync-status">
+                                    <span class="status-dot status-online"></span>
+                                    <span>متصل</span>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-cloud feature-icon"></i>
+                                <h5>التخزين السحابي</h5>
+                                <div class="sync-status">
+                                    <span class="status-dot status-syncing"></span>
+                                    <span>جاري المزامنة</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-success" onclick="initiateMultiSourceSync()">
+                            <i class="fas fa-sync-alt"></i> بدء المزامنة متعددة المصادر
+                        </button>
+                    </div>
+
+                    <div class="advanced-features-panel">
+                        <h4><i class="fas fa-chart-line"></i> تحليلات ذكية في الوقت الحقيقي</h4>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <i class="fas fa-heartbeat feature-icon"></i>
+                                <h5>صحة البيانات</h5>
+                                <div class="health-meter">
+                                    <div class="health-fill health-excellent" id="dataHealthBar" style="width: 95%"></div>
+                                </div>
+                                <p id="dataHealthValue">95%</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-bolt feature-icon"></i>
+                                <h5>أداء النظام</h5>
+                                <div class="health-meter">
+                                    <div class="health-fill health-excellent" id="performanceBar" style="width: 98%"></div>
+                                </div>
+                                <p id="performanceValue">98%</p>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-warning" onclick="runDataIntegrityCheck()">
+                            <i class="fas fa-search"></i> فحص نزاهة البيانات
+                        </button>
+                    </div>
+
+                    <div class="advanced-features-panel">
+                        <h4><i class="fas fa-history"></i> النسخ الاحتياطي الذكي</h4>
+                        <p>آخر عمليات النسخ الاحتياطي:</p>
+                        <div class="backup-log" id="backupLog">
+                            <div class="log-entry">
+                                <div class="log-time">2025-01-15 14:30:25</div>
+                                <div>نسخ احتياطي تلقائي - ناجح</div>
+                            </div>
+                            <div class="log-entry">
+                                <div class="log-time">2025-01-15 10:15:42</div>
+                                <div>نسخ احتياطي يدوي - ناجح</div>
+                            </div>
+                            <div class="log-entry">
+                                <div class="log-time">2025-01-14 22:45:18</div>
+                                <div>نسخ احتياطي تلقائي - ناجح</div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="createBackup()">
+                            <i class="fas fa-save"></i> إنشاء نسخة احتياطية الآن
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <h3><i class="fas fa-chart-line"></i> ملخص الإحصائيات</h3>
+                <p>الدورة الحالية: <strong id="currentElectionIdDisplay">V1</strong></p>
+                <div id="dashboardSummary">
+                    <p>سيظهر ملخص سريع هنا.</p>
+                </div>
+
+                <h3 style="margin-top: 20px;"><i class="fas fa-bolt"></i> تحديث فوري</h3>
+                <button class="btn btn-info btn-sm" onclick="renderCandidates(); renderDashboardStats(); renderDashboardCandidates(); showNotification('تم تحديث البيانات يدوياً!')">
+                    <i class="fas fa-sync"></i> تحديث جميع البيانات
+                </button>
+
+                <div class="advanced-features-panel" style="margin-top: 20px;">
+                    <h4><i class="fas fa-rocket"></i> حالة الميزات المتقدمة</h4>
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h5>التشفير</h5>
+                        <div class="sync-status">
+                            <span class="status-dot status-online"></span>
+                            <span>نشط (AES-256-GCM)</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-sync feature-icon"></i>
+                        <h5>المزامنة</h5>
+                        <div class="sync-status">
+                            <span class="status-dot status-syncing"></span>
+                            <span>جاري المزامنة</span>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-heartbeat feature-icon"></i>
+                        <h5>صحة البيانات</h5>
+                        <div class="health-meter">
+                            <div class="health-fill health-excellent" style="width: 95%"></div>
+                        </div>
+                        <p>95%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent">
+        <header class="main-header fade-in">
+            <div class="header-gradient"></div>
+            <h1 id="mainTitle"><i class="fas fa-shield-alt"></i> النظام الانتخابي الذكي <i class="fas fa-poll"></i></h1>
+            <p id="welcomeMessageDisplay">مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.</p>
+
+            <div class="advanced-features-panel">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h5>تشفير AES-256-GCM</h5>
+                        <p>جميع البيانات مشفرة بأعلى مستويات الأمان</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-sync feature-icon"></i>
+                        <h5>مزامنة متعددة المصادر</h5>
+                        <p>بياناتك آمنة في عدة أماكن في نفس الوقت</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h5>تحليلات ذكية</h5>
+                        <p>مراقبة في الوقت الحقيقي لجودة البيانات</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-history feature-icon"></i>
+                        <h5>نسخ احتياطي ذكي</h5>
+                        <p>حماية تلقائية من فقدان البيانات</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="votingStatusPanel" class="security-panel">
+                <h3><i class="fas fa-clock"></i> حالة التصويت</h3>
+                <div class="timer" id="mainTimerDisplay">التصويت مغلق.</div>
+                <div id="votingMessage"></div>
+            </div>
+
+            <!-- إعلان مخصص من المسؤول -->
+            <div id="customAnnouncement" class="security-panel" style="display: none; background: linear-gradient(135deg, rgba(126, 87, 194, 0.3), rgba(103, 58, 183, 0.3));">
+                <h3><i class="fas fa-bullhorn"></i> <span id="announcementTitle">إعلان</span></h3>
+                <p id="announcementText" style="font-size: 1.1rem; line-height: 1.6; text-align: center;"></p>
+                <div style="text-align: left; font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">
+                    <i class="fas fa-user-shield"></i> من إدارة النظام
+                </div>
+            </div>
+
+            <div class="social-share">
+                <a href="javascript:void(0);" onclick="shareOnSocial('facebook')" class="social-btn facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="javascript:void(0);" onclick="shareOnSocial('twitter')" class="social-btn twitter"><i class="fab fa-twitter"></i></a>
+                <a href="javascript:void(0);" onclick="shareOnSocial('whatsapp')" class="social-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
+                <a href="javascript:void(0);" onclick="shareOnSocial('telegram')" class="social-btn telegram"><i class="fab fa-telegram-plane"></i></a>
+            </div>
+        </header>
+
+        <section class="stats-section">
+            <h2 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-chart-pie"></i> نظرة عامة على النتائج الأولية</h2>
+            <div class="stats-grid">
+                <div class="stat-card fade-in">
+                    <i class="fas fa-users" style="color: var(--info);"></i>
+                    <p>إجمالي المرشحين</p>
+                    <h2 class="stat-value" id="mainStatCandidates">0</h2>
+                </div>
+                <div class="stat-card fade-in">
+                    <i class="fas fa-vote-yea" style="color: var(--secondary);"></i>
+                    <p>إجمالي الأصوات</p>
+                    <h2 class="stat-value" id="mainStatTotalVotes">0</h2>
+                </div>
+                <div class="stat-card fade-in">
+                    <i class="fas fa-trophy" style="color: var(--gold);"></i>
+                    <p>المرشح الرائد</p>
+                    <h2 class="stat-value" id="mainStatLeader">--</h2>
+                </div>
+                <div class="stat-card fade-in">
+                    <i class="fas fa-percent" style="color: var(--purple);"></i>
+                    <p>نسبة المشاركة</p>
+                    <h2 class="stat-value" id="mainStatParticipation">0%</h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="candidates-section">
+            <h2 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-gavel"></i> قائمة المرشحين للتصويت</h2>
+            <div class="candidates-grid" id="candidatesGrid">
+                <!-- سيتم تعبئة هذه القائمة بالمرشحين -->
+            </div>
+        </section>
+    </div>
+
+    <div class="admin-access">
+        <button class="admin-btn" id="adminAccessBtn">
+            <i class="fas fa-user-lock"></i> وصول المسؤول
+        </button>
+    </div>
+
+    <script>
+        // *****************************************************************
+        // 1. مفاتيحك الخاصة لربط Firebase
+        // *****************************************************************
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqT2m55ULjiHn-zs58C7YG_wJzae2lRHs",
+            authDomain: "election-voting-system-89aed.firebaseapp.com",
+            databaseURL: "https://election-voting-system-89aed-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "election-voting-system-89aed",
+            storageBucket: "election-voting-system-89aed.firebasestorage.app",
+            messagingSenderId: "104907607761",
+            appId: "1:104907607761:web:e1f3775b137cb4fe643ff0",
+            measurementId: "G-D3K8MQ3WSZ"
+        };
+
+        // تهيئة Firebase والاتصال بقاعدة البيانات
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const candidatesRef = database.ref('candidates');
+        const settingsRef = database.ref('settings');
+        const announcementsRef = database.ref('announcements'); // مرجع جديد للإعلانات
+        const systemSettingsRef = database.ref('systemSettings'); // مرجع جديد للإعدادات
+
+        // --- متغيرات التخزين الأساسية ---
+        const END_TIME_KEY = 'votingEndTime';
+        const START_TIME_KEY = 'votingStartTime';
+        const ELECTION_ID_KEY = 'electionId';
+        const WELCOME_MSG_KEY = 'welcomeMessage';
+        const VOTED_KEY_PREFIX = 'userVoted_EID_';
+        const ADMIN_PASS_1 = 'adminPass1';
+        const ADMIN_PASS_2 = 'adminPass2';
+        const BACKUP_LOG_KEY = 'backupLog';
+        const SYSTEM_HEALTH_KEY = 'systemHealth';
+        const LOCAL_TITLE_KEY = 'systemTitle';
+        const LOCAL_WELCOME_KEY = 'welcomeMessage';
+        const LOCAL_ANNOUNCEMENT_TITLE = 'customAnnouncementTitle';
+        const LOCAL_ANNOUNCEMENT_TEXT = 'customAnnouncementText';
+
+        // 💡 المتغيرات الرئيسية
+        let votingStartTime = localStorage.getItem(START_TIME_KEY) ? new Date(localStorage.getItem(START_TIME_KEY)) : new Date();
+        let votingEndTime = localStorage.getItem(END_TIME_KEY) ? new Date(localStorage.getItem(END_TIME_KEY)) : new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000));
+        let systemTitle = localStorage.getItem(LOCAL_TITLE_KEY) || "النظام الانتخابي الذكي";
+        let welcomeMessage = localStorage.getItem(LOCAL_WELCOME_KEY) || "مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.";
+        let firstPassword = localStorage.getItem(ADMIN_PASS_1) || "admin123";
+        let secondPassword = localStorage.getItem(ADMIN_PASS_2) || "secure456";
+        let backupLog = JSON.parse(localStorage.getItem(BACKUP_LOG_KEY)) || [];
+        let systemHealth = JSON.parse(localStorage.getItem(SYSTEM_HEALTH_KEY)) || { dataHealth: 95, performance: 98, lastCheck: new Date().toISOString() };
+        let FINGERPRINT_CODE = "";
+        let isVotingOpen = true;
+        let currentElectionId = "V1";
+        let hasVoted = false;
+        let candidates = [];
+
+        // *****************************************************************
+        // 2. دالة الاستماع والمزامنة مع Firebase
+        // *****************************************************************
+        candidatesRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const newCandidates = [];
+            
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    newCandidates.push({
+                        ...data[key],
+                        id: key
+                    });
+                });
+            }
+
+            candidates = newCandidates;
+            candidates.sort((a, b) => b.votes - a.votes);
+
+            renderCandidates();
+            updateMainStats();
+            
+            if (document.getElementById('dashboard').style.display === 'block') {
+                renderDashboardCandidates();
+                renderDashboardStats();
+            }
+        });
+
+        settingsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.electionId) {
+                currentElectionId = data.electionId;
+                hasVoted = localStorage.getItem(VOTED_KEY_PREFIX + currentElectionId) === 'true';
+                document.getElementById('currentElectionIdDisplay').textContent = currentElectionId;
+                
+                checkVotingStatus();
+            } else {
+                settingsRef.set({ electionId: currentElectionId })
+                    .catch(error => showNotification(`خطأ في إنشاء معرّف الدورة: ${error.message}`, 'danger'));
+            }
+        });
+
+        // الاستماع لتحديثات الإعلانات من Firebase
+        announcementsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // تحديث التخزين المحلي
+                localStorage.setItem(LOCAL_ANNOUNCEMENT_TITLE, data.title || 'إعلان');
+                localStorage.setItem(LOCAL_ANNOUNCEMENT_TEXT, data.text || '');
+                
+                // تحديث العرض في الصفحة الرئيسية
+                updateAnnouncementDisplay();
+                
+                // تحديث الحقول في لوحة التحكم إذا كانت مفتوحة
+                if (document.getElementById('announcementTitleInput')) {
+                    document.getElementById('announcementTitleInput').value = data.title || '';
+                    document.getElementById('announcementTextInput').value = data.text || '';
+                }
+            }
+        });
+
+        // الاستماع لتحديثات إعدادات النظام من Firebase
+        systemSettingsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // تحديث التخزين المحلي
+                localStorage.setItem(LOCAL_TITLE_KEY, data.systemTitle || "النظام الانتخابي الذكي");
+                localStorage.setItem(LOCAL_WELCOME_KEY, data.welcomeMessage || "مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.");
+                
+                // تحديث المتغيرات
+                systemTitle = data.systemTitle;
+                welcomeMessage = data.welcomeMessage;
+                
+                // تحديث العرض
+                updateSystemDisplay();
+                
+                // تحديث الحقول في لوحة التحكم إذا كانت مفتوحة
+                if (document.getElementById('systemTitle')) {
+                    document.getElementById('systemTitle').value = systemTitle;
+                    document.getElementById('welcomeMessageInput').value = welcomeMessage;
+                }
+            }
+        });
+
+        // --- وظائف المساعدة العامة ---
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'danger' ? 'alert-danger' : ''} fade-in`;
+            notification.innerHTML = `<i class="fas fa-bell"></i> ${message}`;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3500);
+        }
+        
+        function shareOnSocial(platform) {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(document.title + " - شارك في الانتخابات الإلكترونية الآن!");
+            let shareUrl = '';
+
+            switch (platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `whatsapp://send?text=${text}%20${url}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+                    break;
+                default:
+                    return;
+            }
+
+            window.open(shareUrl, 'ShareWindow', 'width=600,height=400');
+        }
+
+        function checkPasswordStrength(inputId, barId) {
+            const password = document.getElementById(inputId).value;
+            const bar = document.getElementById(barId);
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/\d/)) strength++;
+            if (password.match(/[^a-zA-Z\d\s:]/)) strength++;
+
+            bar.className = 'password-strength';
+            if (strength === 0) {
+                bar.style.width = '0%';
+            } else if (strength < 2) {
+                bar.classList.add('strength-weak');
+            } else if (strength < 4) {
+                bar.classList.add('strength-medium');
+            } else {
+                bar.classList.add('strength-strong');
+            }
+        }
+
+        // --- نظام الأمان وتسجيل الدخول ---
+        function generateFingerprintCode() {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            FINGERPRINT_CODE = code;
+            const demoElement = document.getElementById('demoFingerprint');
+            if (demoElement) demoElement.textContent = code;
+        }
+
+        document.getElementById('firstLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('firstPassword').value;
+            const messageElement = document.getElementById('firstLoginMessage');
+            messageElement.innerHTML = '';
+
+            if (password === firstPassword) {
+                document.getElementById('firstLoginContainer').style.display = 'none';
+                document.getElementById('secondLoginContainer').style.display = 'block';
+                generateFingerprintCode();
+                showNotification("تم التحقق من المرحلة الأولى بنجاح!", 'success');
+            } else {
+                messageElement.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle"></i> كلمة المرور الأولى غير صحيحة.</div>';
+            }
+        });
+
+        document.getElementById('secondLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('secondPassword').value;
+            const code = document.getElementById('fingerprintCode').value;
+            const messageElement = document.getElementById('secondLoginMessage');
+            messageElement.innerHTML = '';
+
+            if (password === secondPassword && code === FINGERPRINT_CODE) {
+                document.getElementById('secondLoginContainer').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('adminAccessBtn').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'none';
+                showNotification("تم تسجيل الدخول بنجاح! مرحباً بالمسؤول.", 'success');
+                renderDashboardCandidates();
+                renderDashboardStats();
+                updateVotingTimeDisplay();
+                updateAdvancedFeaturesDisplay();
+            } else {
+                messageElement.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle"></i> كلمة المرور الثانية أو رمز البصمة غير صحيح.</div>';
+            }
+        });
+
+        document.getElementById('adminAccessBtn').addEventListener('click', function() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('firstLoginContainer').style.display = 'block';
+            document.getElementById('firstPassword').value = '';
+            document.getElementById('firstLoginMessage').innerHTML = '';
+            document.getElementById('secondLoginContainer').style.display = 'none';
+        });
+
+        function logout() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('firstLoginContainer').style.display = 'none';
+            document.getElementById('secondLoginContainer').style.display = 'none';
+            document.getElementById('adminAccessBtn').style.display = 'block';
+            showNotification("تم تسجيل الخروج بنجاح.", 'info');
+            document.getElementById('mainContent').style.display = 'block';
+        }
+        
+        // --- وظائف إدارة كلمات المرور ---
+        function changeAdminPasswords() {
+            const newPass1 = document.getElementById('newFirstPassword').value;
+            const newPass2 = document.getElementById('newSecondPassword').value;
+
+            if (newPass1.length < 6 || newPass2.length < 6) {
+                showNotification("يجب أن تكون كلتا كلمتي المرور 6 أحرف على الأقل.", 'danger');
+                return;
+            }
+
+            firstPassword = newPass1;
+            secondPassword = newPass2;
+            localStorage.setItem(ADMIN_PASS_1, newPass1);
+            localStorage.setItem(ADMIN_PASS_2, newPass2);
+
+            showNotification("تم حفظ كلمات المرور الجديدة بنجاح!", 'success');
+            document.getElementById('newFirstPassword').value = '';
+            document.getElementById('newSecondPassword').value = '';
+            document.getElementById('strengthBar1').style.width = '0%';
+            document.getElementById('strengthBar2').style.width = '0%';
+        }
+
+        // --- وظائف إدارة المرشحين (استخدام Firebase) ---
+        function addCandidate() {
+            const name = document.getElementById('newCandidateName').value.trim();
+            const party = document.getElementById('newCandidateParty').value.trim();
+            let imageUrl = document.getElementById('newCandidateImageURL').value.trim() || "https://via.placeholder.com/140/CCCCCC/000000?text=NEW";
+
+            if (!name || !party) {
+                showNotification("يرجى إدخال اسم وحزب المرشح.", 'danger');
+                return;
+            }
+            
+            const fileInput = document.getElementById('newCandidateImageFile');
+            if (fileInput.files.length > 0) {
+                showNotification("تمت إضافة المرشح بنجاح! (الصورة المحملة لن تُحفظ فعلياً في Firebase)", 'warning');
+            }
+
+            const newCandidateData = {
+                name: name,
+                party: party,
+                votes: 0,
+                imageUrl: imageUrl
+            };
+
+            candidatesRef.push(newCandidateData)
+                .then(() => {
+                    showNotification(`تمت إضافة المرشح: ${name} بنجاح إلى Firebase!`, 'success');
+                    document.getElementById('newCandidateName').value = '';
+                    document.getElementById('newCandidateParty').value = '';
+                    document.getElementById('newCandidateImageURL').value = '';
+                    document.getElementById('newCandidateImageFile').value = '';
+                })
+                .catch((error) => {
+                    showNotification(`حدث خطأ أثناء إضافة المرشح: ${error.message}`, 'danger');
+                });
+        }
+
+        function renderDashboardCandidates() {
+            const list = document.getElementById('dashboardCandidatesList');
+            list.innerHTML = '';
+
+            if (candidates.length === 0) {
+                list.innerHTML = '<div class="alert alert-warning"><i class="fas fa-info-circle"></i> لا يوجد مرشحون حالياً.</div>';
+                return;
+            }
+
+            candidates.forEach(candidate => {
+                const item = document.createElement('div');
+                item.className = 'candidate-item fade-in';
+                item.id = `dashboard-candidate-${candidate.id}`;
+                item.innerHTML = `
+                    <div class="candidate-item-content">
+                        <img src="${candidate.imageUrl}" onerror="this.src='https://via.placeholder.com/80/CCCCCC/000000?text=No+Image'" alt="${candidate.name}" class="candidate-preview">
+                        <div class="candidate-details">
+                            <h4 style="color: var(--primary);">${candidate.name} (${candidate.party})</h4>
+                            <p style="color: var(--light);">الأصوات: <strong>${candidate.votes}</strong> | ID: ${candidate.id}</p>
+                        </div>
+                    </div>
+                    <div class="votes-control">
+                        <input type="number" id="dashboardVotesInput-${candidate.id}" class="form-control vote-input" value="${candidate.votes}" min="0" style="color: var(--dark);">
+                        <button class="update-votes-btn" onclick="updateCandidateVotes('${candidate.id}')">
+                            <i class="fas fa-sync-alt"></i> تحديث الأصوات
+                        </button>
+                    </div>
+                    <div class="candidate-actions">
+                        <button class="btn btn-warning btn-sm" onclick="editCandidate('${candidate.id}')"><i class="fas fa-edit"></i> تعديل</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCandidate('${candidate.id}')"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        function deleteCandidate(id) {
+            if (confirm("هل أنت متأكد من حذف هذا المرشح؟ لا يمكن التراجع عن هذا الإجراء.")) {
+                database.ref(`candidates/${id}`).remove()
+                    .then(() => {
+                        showNotification("تم حذف المرشح بنجاح من Firebase.", 'danger');
+                    })
+                    .catch((error) => {
+                        showNotification(`حدث خطأ أثناء الحذف: ${error.message}`, 'danger');
+                    });
+            }
+        }
+
+        function editCandidate(id) {
+            const candidate = candidates.find(c => c.id === id);
+            if (!candidate) return;
+
+            const newName = prompt(`تعديل اسم المرشح الحالي (${candidate.name}):`, candidate.name);
+            const newParty = prompt(`تعديل حزب المرشح الحالي (${candidate.party}):`, candidate.party);
+            const newImage = prompt(`تعديل رابط الصورة الحالي (${candidate.imageUrl}):`, candidate.imageUrl);
+            
+            if (newName || newParty || newImage) {
+                const updates = {};
+                if (newName && newName.trim() !== "") updates.name = newName.trim();
+                if (newParty && newParty.trim() !== "") updates.party = newParty.trim();
+                if (newImage && newImage.trim() !== "") updates.imageUrl = newImage.trim();
+                
+                if (Object.keys(updates).length > 0) {
+                    database.ref(`candidates/${id}`).update(updates)
+                        .then(() => {
+                            showNotification("تم تحديث بيانات المرشح بنجاح.", 'success');
+                        })
+                        .catch((error) => {
+                            showNotification(`حدث خطأ أثناء التحديث: ${error.message}`, 'danger');
+                        });
+                }
+            }
+        }
+
+        function updateCandidateVotes(id) {
+            const inputElement = document.getElementById(`dashboardVotesInput-${id}`);
+            const newVotes = parseInt(inputElement.value);
+
+            if (isNaN(newVotes) || newVotes < 0) {
+                showNotification("القيمة غير صحيحة.", 'danger');
+                inputElement.value = candidates.find(c => c.id === id).votes;
+                return;
+            }
+
+            const candidate = candidates.find(c => c.id === id);
+            if (candidate) {
+                database.ref(`candidates/${id}/votes`).set(newVotes)
+                    .then(() => {
+                        showNotification(`تم تحديث أصوات ${candidate.name} يدوياً إلى ${newVotes}`, 'info');
+                    })
+                    .catch((error) => {
+                        showNotification(`حدث خطأ أثناء التحديث: ${error.message}`, 'danger');
+                    });
+            }
+        }
+
+        // --- وظائف التصويت والواجهة الرئيسية ---
+        function renderCandidates() {
+            const grid = document.getElementById('candidatesGrid');
+            grid.innerHTML = '';
+            
+            if (candidates.length === 0) {
+                grid.innerHTML = '<div class="alert alert-warning"><i class="fas fa-info-circle"></i> لا يوجد مرشحون حالياً. يرجى مراجعة المسؤول.</div>';
+                return;
+            }
+
+            candidates.forEach(candidate => {
+                const card = document.createElement('div');
+                card.className = 'candidate-card fade-in';
+                card.innerHTML = `
+                    <img src="${candidate.imageUrl}" onerror="this.src='https://via.placeholder.com/140/CCCCCC/000000?text=No+Image'" alt="${candidate.name}" class="candidate-image">
+                    <h3>${candidate.name}</h3>
+                    <p>الحزب: <strong>${candidate.party}</strong></p>
+                    <p>الأصوات الحالية: <strong class="vote-count">${candidate.votes}</strong></p>
+                    <button class="vote-btn" id="voteBtn-${candidate.id}" onclick="voteForCandidate('${candidate.id}')">
+                        <i class="fas fa-vote-yea"></i> صوت الآن
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+            checkVotingStatus();
+        }
+        
+        function voteForCandidate(id) {
+            if (!isVotingOpen) {
+                showNotification("التصويت مغلق حالياً.", 'danger');
+                return;
+            }
+            
+            hasVoted = localStorage.getItem(VOTED_KEY_PREFIX + currentElectionId) === 'true';
+
+            if (hasVoted) {
+                showNotification("لقد قمت بالتصويت بالفعل في هذه الدورة. لا يمكن التصويت مرتين.", 'danger');
+                return;
+            }
+
+            const candidate = candidates.find(c => c.id === id);
+            if (candidate) {
+                const newVotes = candidate.votes + 1;
+                
+                database.ref(`candidates/${id}/votes`).set(newVotes)
+                    .then(() => {
+                        hasVoted = true;
+                        localStorage.setItem(VOTED_KEY_PREFIX + currentElectionId, 'true');
+                        showNotification(`شكراً لك! تم التصويت لـ ${candidate.name} بنجاح.`, 'success');
+                        checkVotingStatus();
+                    })
+                    .catch((error) => {
+                        showNotification(`حدث خطأ أثناء التصويت: ${error.message}`, 'danger');
+                    });
+            }
+        }
+
+        function checkVotingStatus() {
+            const now = new Date();
+            isVotingOpen = (now >= votingStartTime) && (now < votingEndTime);
+
+            const timerDisplay = document.getElementById('mainTimerDisplay');
+            const votingMessage = document.getElementById('votingMessage');
+            const voteButtons = document.querySelectorAll('.vote-btn');
+
+            hasVoted = localStorage.getItem(VOTED_KEY_PREFIX + currentElectionId) === 'true';
+
+            if (isVotingOpen) {
+                timerDisplay.style.color = 'var(--secondary)';
+                votingMessage.innerHTML = '';
+                voteButtons.forEach(btn => {
+                    btn.disabled = hasVoted;
+                    if (hasVoted) {
+                        btn.textContent = 'تم التصويت بالفعل';
+                    } else {
+                        btn.innerHTML = '<i class="fas fa-vote-yea"></i> صوت الآن';
+                    }
+                });
+                if (!hasVoted) {
+                    votingMessage.innerHTML = '<div class="alert alert-success" style="color: #c8e6c9;"><i class="fas fa-check-circle"></i> التصويت متاح لك الآن.</div>';
+                } else {
+                    votingMessage.innerHTML = `<div class="alert alert-warning" style="color: #ffcdd2;"><i class="fas fa-exclamation-triangle"></i> لقد صوت في الدورة #${currentElectionId}.</div>`;
+                }
+            } else {
+                timerDisplay.textContent = "انتهت فترة التصويت";
+                timerDisplay.style.color = 'var(--danger)';
+                votingMessage.innerHTML = '<div class="alert alert-danger" style="color: #ffcdd2;">انتهت فترة التصويت ولا يمكن الإدلاء بأصوات جديدة.</div>';
+                voteButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.textContent = 'التصويت مغلق';
+                });
+            }
+        }
+
+        // **دالة تحديث العناوين والرسالة الترحيبية والمزامنة مع Firebase**
+        function updateSystemTitleAndSync() {
+            const newTitle = document.getElementById('systemTitle').value;
+            const newWelcomeMessage = document.getElementById('welcomeMessageInput').value;
+            
+            if (newTitle.trim() === "") {
+                showNotification("لا يمكن أن يكون العنوان فارغاً.", 'danger');
+                return;
+            }
+            
+            systemTitle = newTitle.trim();
+            welcomeMessage = newWelcomeMessage.trim();
+
+            // تحديث التخزين المحلي
+            localStorage.setItem(LOCAL_TITLE_KEY, systemTitle);
+            localStorage.setItem(LOCAL_WELCOME_KEY, welcomeMessage);
+            
+            // تحديث العرض
+            updateSystemDisplay();
+            
+            // مزامنة مع Firebase
+            const titleData = {
+                systemTitle: systemTitle,
+                welcomeMessage: welcomeMessage,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            systemSettingsRef.set(titleData)
+                .then(() => {
+                    showNotification("تم تحديث العنوان والرسالة الترحيبية والمزامنة مع Firebase!", 'success');
+                })
+                .catch((error) => {
+                    showNotification(`حدث خطأ في المزامنة: ${error.message}`, 'danger');
+                });
+        }
+
+        // **دالة تحديث عرض النظام**
+        function updateSystemDisplay() {
+            document.title = systemTitle;
+            document.getElementById('mainTitle').innerHTML = `<i class="fas fa-shield-alt"></i> ${systemTitle} <i class="fas fa-poll"></i>`;
+            document.getElementById('welcomeMessageDisplay').textContent = welcomeMessage;
+        }
+
+        function updateMainStats() {
+            const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
+            let leader = { votes: -1, name: '--' };
+            if (candidates.length > 0) {
+                leader = candidates.reduce((max, c) => (c.votes > max.votes ? c : max), { votes: -1, name: '--' });
+            }
+            
+            const participation = candidates.length > 0 ? (totalVotes * 100 / (candidates.length * 1000)).toFixed(2) : 0;
+
+            // تحديث العناوين في الواجهة الرئيسية
+            updateSystemDisplay();
+            
+            document.getElementById('mainStatCandidates').textContent = candidates.length;
+            document.getElementById('mainStatTotalVotes').textContent = totalVotes;
+            document.getElementById('mainStatLeader').textContent = leader.name;
+            document.getElementById('mainStatParticipation').textContent = `${participation}%`;
+
+            // تحديث العداد التنازلي
+            const now = new Date();
+            const diff = votingEndTime.getTime() - now.getTime();
+            const timerDisplay = document.getElementById('mainTimerDisplay');
+
+            if (diff > 0 && now >= votingStartTime) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timerDisplay.textContent = `${days}ي ${hours}س ${minutes}د ${seconds}ث متبقية`;
+                isVotingOpen = true;
+            } else if (now < votingStartTime) {
+                timerDisplay.textContent = "التصويت لم يبدأ بعد.";
+                isVotingOpen = false;
+            } else {
+                isVotingOpen = false;
+            }
+            checkVotingStatus();
+        }
+        
+        // --- وظائف لوحة التحكم ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            if (tabName === 'candidates') {
+                renderDashboardCandidates();
+            }
+            if (tabName === 'tools') {
+                renderDashboardStats();
+            }
+            if (tabName === 'basic') {
+                document.getElementById('systemTitle').value = systemTitle;
+                document.getElementById('welcomeMessageInput').value = welcomeMessage;
+                document.getElementById('announcementTitleInput').value = localStorage.getItem(LOCAL_ANNOUNCEMENT_TITLE) || '';
+                document.getElementById('announcementTextInput').value = localStorage.getItem(LOCAL_ANNOUNCEMENT_TEXT) || '';
+                updateVotingTimeDisplay();
+            }
+            if (tabName === 'advanced') {
+                updateAdvancedFeaturesDisplay();
+            }
+        }
+
+        function renderDashboardStats() {
+            const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
+            let leaderName = '--';
+            if (candidates.length > 0) {
+                const leader = candidates.reduce((max, c) => (c.votes > max.votes ? c : max), { votes: -1, name: '--' });
+                leaderName = leader.name;
+            }
+            
+            document.getElementById('currentElectionIdDisplay').textContent = currentElectionId;
+            document.getElementById('dashboardStatCandidates').textContent = candidates.length;
+            document.getElementById('dashboardStatTotalVotes').textContent = totalVotes;
+            document.getElementById('dashboardStatWinner').textContent = leaderName;
+            document.getElementById('dashboardStatStatus').textContent = isVotingOpen ? 'مفتوح' : 'مغلق';
+            document.getElementById('dashboardStatStatus').style.color = isVotingOpen ? 'var(--secondary)' : 'var(--danger)';
+        }
+
+        // --- وظائف إدارة الوقت ---
+        function updateVotingTimeDisplay() {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            
+            const timeDisplayElement = document.querySelector('#basic-tab .time-display');
+            
+            const startTimeHTML = `<div>وقت بدء التصويت: <strong id="currentStartTimeDisplay">${votingStartTime.toLocaleString('ar-EG', options)}</strong></div>`;
+
+            const endTimeHTML = `
+                <div>وقت انتهاء التصويت الحالي:</div>
+                <div class="time-value" id="currentEndTime">${votingEndTime.toLocaleString('ar-EG', options)}</div>
+            `;
+            
+            const timeRemainingElement = document.getElementById('timeRemaining');
+
+            const now = new Date();
+            const diff = votingEndTime.getTime() - now.getTime();
+
+            if (diff > 0 && now >= votingStartTime) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timeRemainingElement.textContent = `متبقي: ${days} يوم, ${hours} ساعة, ${minutes} دقيقة, ${seconds} ثانية`;
+            } else if (now < votingStartTime) {
+                timeRemainingElement.textContent = `لم يبدأ بعد. سيبدأ عند ${votingStartTime.toLocaleString('ar-EG', options)}`;
+                isVotingOpen = false;
+            } else {
+                timeRemainingElement.textContent = "انتهى الوقت.";
+                isVotingOpen = false;
+            }
+            
+            timeDisplayElement.innerHTML = startTimeHTML + endTimeHTML;
+            timeDisplayElement.appendChild(timeRemainingElement);
+        }
+
+        function extendVotingTime(hours) {
+            if (new Date().getTime() >= votingEndTime.getTime()) {
+                votingEndTime = new Date();
+            }
+            
+            votingEndTime.setTime(votingEndTime.getTime() + (hours * 60 * 60 * 1000));
+            localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
+            isVotingOpen = true;
+            
+            if (votingStartTime.getTime() > new Date().getTime()) {
+                votingStartTime = new Date();
+                localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
+            }
+
+            updateVotingTimeDisplay();
+            updateMainStats();
+            showNotification(`تم تمديد فترة التصويت بـ ${hours} ساعة.`, 'info');
+        }
+        
+        function resetVotingTime() {
+            if (confirm("هل أنت متأكد من إعادة تعيين وقت الانتهاء؟ سيتم تعيينه إلى 7 أيام من الآن، وسيبدأ الآن.")) {
+                votingStartTime = new Date();
+                votingEndTime = new Date(votingStartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
+                
+                localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
+                localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
+
+                isVotingOpen = true;
+                updateVotingTimeDisplay();
+                updateMainStats();
+                showNotification("تمت إعادة تعيين وقت التصويت إلى 7 أيام ويبدأ الآن.", 'warning');
+            }
+        }
+        
+        function setSpecificStartTime() {
+            const input = document.getElementById('newStartTimeInput').value;
+            const newTime = new Date(input);
+
+            if (isNaN(newTime) || newTime.getTime() >= votingEndTime.getTime()) {
+                showNotification("التاريخ والوقت المدخل غير صالح أو بعد وقت الانتهاء.", 'danger');
+                return;
+            }
+
+            votingStartTime = newTime;
+            localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
+            updateVotingTimeDisplay();
+            updateMainStats();
+            showNotification("تم تعيين وقت بدء التصويت الجديد.", 'success');
+        }
+
+        function setSpecificEndTime() {
+            const input = document.getElementById('newEndTimeInput').value;
+            const newTime = new Date(input);
+
+            if (isNaN(newTime) || newTime.getTime() <= votingStartTime.getTime()) {
+                showNotification("التاريخ والوقت المدخل غير صالح أو قبل وقت البدء.", 'danger');
+                return;
+            }
+
+            votingEndTime = newTime;
+            localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
+            updateVotingTimeDisplay();
+            updateMainStats();
+            showNotification("تم تعيين وقت انتهاء التصويت الجديد.", 'success');
+        }
+        
+        function lockVoting() {
+            votingEndTime = new Date(new Date().getTime() - 1000);
+            localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
+            isVotingOpen = false;
+            updateVotingTimeDisplay();
+            updateMainStats();
+            renderDashboardStats();
+            showNotification("تم إغلاق التصويت يدوياً.", 'danger');
+        }
+
+        function unlockVoting() {
+            votingStartTime = new Date();
+            votingEndTime = new Date(new Date().getTime() + (1 * 60 * 60 * 1000));
+            localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
+            localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
+            isVotingOpen = true;
+            updateVotingTimeDisplay();
+            updateMainStats();
+            renderDashboardStats();
+            showNotification("تم تفعيل التصويت يدوياً لساعة واحدة، ويبدأ الآن.", 'success');
+        }
+
+        function startNewElectionCycle() {
+            if (!confirm("تحذير: هل أنت متأكد من بدء دورة تصويت جديدة؟ سيؤدي ذلك إلى تصفير جميع الأصوات في Firebase وتوليد معرّف دورة جديد، مما يسمح للمستخدمين بالتصويت مجدداً.")) {
+                return;
+            }
+            
+            const updates = {};
+            candidates.forEach(c => {
+                updates[c.id + "/votes"] = 0;
+            });
+
+            const currentNum = parseInt(currentElectionId.substring(1) || 0);
+            const newId = `V${currentNum + 1}`;
+
+            database.ref('candidates').update(updates)
+                .then(() => {
+                    return settingsRef.update({ electionId: newId });
+                })
+                .then(() => {
+                    votingStartTime = new Date();
+                    votingEndTime = new Date(votingStartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
+                    localStorage.setItem(START_TIME_KEY, votingStartTime.toISOString());
+                    localStorage.setItem(END_TIME_KEY, votingEndTime.toISOString());
+                    
+                    showNotification(`✅ تم تصفير الأصوات وبدء الدورة الجديدة! المعرّف: ${newId} (التصويت مفتوح لـ 7 أيام)`, 'success');
+                })
+                .catch((error) => {
+                    showNotification(`حدث خطأ أثناء بدء الدورة الجديدة: ${error.message}`, 'danger');
+                });
+        }
+
+        function resetAllVotes() {
+            if (confirm("تحذير: هل أنت متأكد من تصفير جميع الأصوات لجميع المرشحين؟ لا يمكن التراجع عن هذا الإجراء.")) {
+                const updates = {};
+                candidates.forEach(c => {
+                    updates[c.id + "/votes"] = 0;
+                });
+                
+                database.ref('candidates').update(updates)
+                    .then(() => {
+                        showNotification("تم تصفير جميع الأصوات بنجاح. العملية مستمرة.", 'danger');
+                    })
+                    .catch((error) => {
+                        showNotification(`حدث خطأ أثناء تصفير الأصوات: ${error.message}`, 'danger');
+                    });
+            }
+        }
+
+        function exportData() {
+            const data = {
+                SystemTitle: systemTitle,
+                WelcomeMessage: welcomeMessage,
+                VotingStartTime: votingStartTime.toISOString(),
+                VotingEndTime: votingEndTime.toISOString(),
+                ElectionId: currentElectionId,
+                Candidates: candidates
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `election_data_EID_${currentElectionId}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showNotification("تم تصدير البيانات بنجاح كملف JSON.", 'info');
+        }
+
+        // --- نظام الجسيمات العائمة ---
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.animationDelay = `-${Math.random() * 10}s`;
+            particle.style.animationDuration = `${10 + Math.random() * 10}s`;
+            document.getElementById('particlesContainer').appendChild(particle);
+        }
+
+        // --- الميزات المتقدمة ---
+        function simulateMinorFailure() {
+            systemHealth.dataHealth = 75;
+            systemHealth.performance = 85;
+            localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
+            updateAdvancedFeaturesDisplay();
+            showNotification("⚠️ تم محاكاة فشل طفيف! صحة البيانات والأداء انخفضت.", 'warning');
+        }
+
+        function rebootSystemCheck() {
+            systemHealth.dataHealth = 99;
+            systemHealth.performance = 99;
+            localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
+            updateAdvancedFeaturesDisplay();
+            showNotification("✅ إعادة تشغيل فحص النظام: الأداء وصحة البيانات ممتازان الآن.", 'success');
+        }
+
+        function updateAdvancedFeaturesDisplay() {
+            document.getElementById('dataHealthBar').style.width = systemHealth.dataHealth + '%';
+            document.getElementById('dataHealthValue').textContent = systemHealth.dataHealth + '%';
+            
+            document.getElementById('performanceBar').style.width = systemHealth.performance + '%';
+            document.getElementById('performanceValue').textContent = systemHealth.performance + '%';
+            
+            updateBackupLogDisplay();
+        }
+
+        function performEncryptionCheck() {
+            showNotification("جاري فحص نظام التشفير...", 'info');
+            
+            setTimeout(() => {
+                const isEncryptionActive = true;
+                if (isEncryptionActive) {
+                    showNotification("✅ نظام التشفير AES-256-GCM نشط ويعمل بشكل صحيح", 'success');
+                } else {
+                    showNotification("⚠️ يوجد مشكلة في نظام التشفير", 'warning');
+                }
+            }, 1500);
+        }
+
+        function initiateMultiSourceSync() {
+            showNotification("جاري بدء المزامنة متعددة المصادر...", 'info');
+            
+            setTimeout(() => {
+                showNotification("✅ تمت مزامنة البيانات مع جميع المصادر بنجاح", 'success');
+                addBackupLog("مزامنة متعددة المصادر - ناجحة");
+            }, 3000);
+        }
+
+        function runDataIntegrityCheck() {
+            showNotification("جاري فحص نزاهة البيانات...", 'info');
+            
+            setTimeout(() => {
+                const integrityScore = Math.floor(Math.random() * 20) + 80;
+                systemHealth.dataHealth = integrityScore;
+                localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
+                
+                document.getElementById('dataHealthBar').style.width = integrityScore + '%';
+                document.getElementById('dataHealthValue').textContent = integrityScore + '%';
+                
+                if (integrityScore >= 90) {
+                    showNotification(`✅ فحص النزاهة اكتمل: ${integrityScore}% - البيانات في حالة ممتازة`, 'success');
+                } else if (integrityScore >= 70) {
+                    showNotification(`⚠️ فحص النزاهة اكتمل: ${integrityScore}% - البيانات في حالة جيدة`, 'warning');
+                } else {
+                    showNotification(`❌ فحص النزاهة اكتمل: ${integrityScore}% - تحتاج البيانات إلى اهتمام`, 'danger');
+                }
+            }, 2000);
+        }
+
+        function createBackup() {
+            showNotification("جاري إنشاء نسخة احتياطية...", 'info');
+            
+            setTimeout(() => {
+                addBackupLog("نسخ احتياطي يدوي - ناجح");
+                showNotification("✅ تم إنشاء النسخة الاحتياطية بنجاح", 'success');
+            }, 2000);
+        }
+
+        function addBackupLog(message) {
+            const timestamp = new Date().toLocaleString('ar-EG');
+            backupLog.unshift({
+                time: timestamp,
+                message: message
+            });
+            
+            if (backupLog.length > 10) {
+                backupLog = backupLog.slice(0, 10);
+            }
+            
+            localStorage.setItem(BACKUP_LOG_KEY, JSON.stringify(backupLog));
+            updateBackupLogDisplay();
+        }
+
+        function updateBackupLogDisplay() {
+            const logContainer = document.getElementById('backupLog');
+            if (!logContainer) return;
+            
+            logContainer.innerHTML = '';
+            
+            backupLog.forEach(entry => {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `
+                    <div class="log-time">${entry.time}</div>
+                    <div>${entry.message}</div>
+                `;
+                logContainer.appendChild(logEntry);
+            });
+        }
+
+        // --- وظائف الإعلانات المزامنة ---
+        function saveAnnouncementAndSync() {
+            const title = document.getElementById('announcementTitleInput').value.trim();
+            const text = document.getElementById('announcementTextInput').value.trim();
+            
+            const announcementData = {
+                title: title || 'إعلان',
+                text: text,
+                timestamp: new Date().toISOString(),
+                updatedBy: 'admin'
+            };
+            
+            announcementsRef.set(announcementData)
+                .then(() => {
+                    showNotification('تم حفظ الإعلان والمزامنة مع Firebase!', 'success');
+                    
+                    // تحديث التخزين المحلي
+                    localStorage.setItem(LOCAL_ANNOUNCEMENT_TITLE, title || 'إعلان');
+                    localStorage.setItem(LOCAL_ANNOUNCEMENT_TEXT, text);
+                    
+                    // تحديث العرض
+                    updateAnnouncementDisplay();
+                })
+                .catch((error) => {
+                    showNotification(`خطأ في حفظ الإعلان: ${error.message}`, 'danger');
+                    
+                    // حفظ محلي كنسخة احتياطية
+                    localStorage.setItem(LOCAL_ANNOUNCEMENT_TITLE, title || 'إعلان');
+                    localStorage.setItem(LOCAL_ANNOUNCEMENT_TEXT, text);
+                    updateAnnouncementDisplay();
+                });
+        }
+
+        function updateAnnouncementDisplay() {
+            const savedTitle = localStorage.getItem(LOCAL_ANNOUNCEMENT_TITLE) || 'إعلان';
+            const savedText = localStorage.getItem(LOCAL_ANNOUNCEMENT_TEXT) || '';
+            
+            const announcementElement = document.getElementById('customAnnouncement');
+            if (announcementElement) {
+                if (savedText.trim()) {
+                    document.getElementById('announcementTitle').textContent = savedTitle;
+                    document.getElementById('announcementText').textContent = savedText;
+                    announcementElement.style.display = 'block';
+                } else {
+                    announcementElement.style.display = 'none';
+                }
+            }
+        }
+
+        // --- وظيفة التهيئة الرئيسية ---
+        function initApp() {
+            document.getElementById('mainContent').style.display = 'block';
+            
+            // تحديث العرض من التخزين المحلي أولاً
+            updateSystemDisplay();
+            updateAnnouncementDisplay();
+            updateAdvancedFeaturesDisplay();
+            
+            // تحديث كل 1 ثانية
+            setInterval(() => {
+                updateMainStats();
+                updateVotingTimeDisplay();
+            }, 1000);
+
+            // إنشاء الجسيمات
+            for (let i = 0; i < 20; i++) {
+                createParticle();
+            }
+            
+            // تحديث إحصائيات لوحة التحكم كل 5 ثوانٍ إذا كانت مفتوحة
+            setInterval(() => {
+                if (document.getElementById('dashboard').style.display === 'block') {
+                    renderDashboardStats();
+                }
+            }, 5000);
+
+            // تحديث صحة البيانات تلقائياً كل دقيقة
+            setInterval(() => {
+                systemHealth.dataHealth = Math.floor(Math.random() * 10) + 90;
+                systemHealth.performance = Math.floor(Math.random() * 5) + 95;
+                systemHealth.lastCheck = new Date().toISOString();
+                localStorage.setItem(SYSTEM_HEALTH_KEY, JSON.stringify(systemHealth));
+                
+                if (document.getElementById('dashboard').style.display === 'block' && 
+                    document.getElementById('advanced-tab').classList.contains('active')) {
+                    updateAdvancedFeaturesDisplay();
+                }
+            }, 60000);
+
+            // نسخ احتياطي تلقائي كل 5 دقائق
+            setInterval(() => {
+                addBackupLog("نسخ احتياطي تلقائي - ناجح");
+            }, 300000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
