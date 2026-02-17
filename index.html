@@ -1092,6 +1092,49 @@
             border: 1px solid var(--danger);
             color: #ffcdd2;
         }
+        
+        /* أنماط التذييل الجديد للحقوق */
+        .footer {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .footer strong {
+            color: var(--gold);
+        }
+        
+        .footer hr {
+            margin: 20px 0;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .footer .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .footer .contact-info a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .footer .contact-info a:hover {
+            color: var(--gold);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -1147,8 +1190,8 @@
 
         <div class="password-level">
             <p><i class="fas fa-info-circle"></i> معلومات الأمان (Demo):</p>
-            <p>كلمة المرور الأولى: <strong>admin123</strong></p>
-            <p>كلمة المرور الثانية: <strong>secure456</strong></p>
+            <p>كلمة المرور الأولى: <strong>سيتم تحميلها...</strong></p>
+            <p>كلمة المرور الثانية: <strong>سيتم تحميلها...</strong></p>
             <p>رمز البصمة: <strong id="demoFingerprint">جاري التوليد...</strong></p>
         </div>
     </div>
@@ -1573,6 +1616,28 @@
                 <!-- سيتم تعبئة هذه القائمة بالمرشحين -->
             </div>
         </section>
+        
+        <!-- تذييل الحقوق والنص القانوني المطلوب -->
+        <footer class="footer">
+            <div style="font-size: 1.2rem; margin-bottom: 15px;">
+                <i class="fas fa-copyright"></i> 2025 <strong>NOVATECH FOUNDER HOLDINGS LTD</strong> (رقم: 16945629) - جميع الحقوق محفوظة
+            </div>
+            <hr>
+            <p style="font-weight: bold; color: var(--gold);">
+                هذا البرنامج مرخص حصرياً للتصويت داخل جمهورية العراق من قبل المدير <strong>كاظم حسن جاسم النفاخ</strong>.
+            </p>
+            <p style="color: rgba(255, 255, 255, 0.8);">
+                أي نسخ أو تقليد أو إعادة هندسة لهذا النظام يعتبر انتهاكاً صريحاً لحقوق الملكية الفكرية<br>
+                وسيتم ملاحقة المخالفين قانونياً بموجب القوانين البريطانية والدولية.
+            </p>
+            <p style="margin-top: 10px;">
+                <i class="fas fa-map-marker-alt"></i> المقر الرسمي: 321-323 High Road, Chadwell Heath, RM6 6AX, UK
+            </p>
+            <div class="contact-info">
+                <a href="tel:+447482790489"><i class="fas fa-phone"></i> +447482790489</a>
+                <a href="mailto:ceo@novaapp.tech"><i class="fas fa-envelope"></i> ceo@novaapp.tech</a>
+            </div>
+        </footer>
     </div>
 
     <div class="admin-access">
@@ -1595,16 +1660,16 @@
             measurementId: "G-D3K8MQ3WSZ"
         };
 
-        // تهيئة Firebase والاتصال بقاعدة البيانات
-      // تهيئة Firebase مع تعطيل التخزين
-const app = firebase.initializeApp(firebaseConfig);
-// تعطيل خدمة Storage لمنع أخطاء 403
-delete app.storage;
+        // تهيئة Firebase مع تعطيل التخزين
+        const app = firebase.initializeApp(firebaseConfig);
+        // تعطيل خدمة Storage لمنع أخطاء 403
+        delete app.storage;
         const database = firebase.database();
         const candidatesRef = database.ref('candidates');
         const settingsRef = database.ref('settings');
         const announcementsRef = database.ref('announcements'); // مرجع جديد للإعلانات
         const systemSettingsRef = database.ref('systemSettings'); // مرجع جديد للإعدادات
+        const passwordsRef = database.ref('adminPasswords'); // مرجع جديد لكلمات المرور
 
         // --- متغيرات التخزين الأساسية ---
         const END_TIME_KEY = 'votingEndTime';
@@ -1612,8 +1677,6 @@ delete app.storage;
         const ELECTION_ID_KEY = 'electionId';
         const WELCOME_MSG_KEY = 'welcomeMessage';
         const VOTED_KEY_PREFIX = 'userVoted_EID_';
-        const ADMIN_PASS_1 = 'adminPass1';
-        const ADMIN_PASS_2 = 'adminPass2';
         const BACKUP_LOG_KEY = 'backupLog';
         const SYSTEM_HEALTH_KEY = 'systemHealth';
         const LOCAL_TITLE_KEY = 'systemTitle';
@@ -1626,7 +1689,7 @@ delete app.storage;
         let votingEndTime = localStorage.getItem(END_TIME_KEY) ? new Date(localStorage.getItem(END_TIME_KEY)) : new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000));
         let systemTitle = localStorage.getItem(LOCAL_TITLE_KEY) || "النظام الانتخابي الذكي";
         let welcomeMessage = localStorage.getItem(LOCAL_WELCOME_KEY) || "مرحباً بك في نظام التصويت الإلكتروني الأكثر أماناً وشفافية. يرجى اختيار مرشحك بحرية ومسؤولية.";
-        let firstPassword = "kazem1995##", secondPassword = "kazem1995##";
+        let firstPassword = "", secondPassword = "";
         let backupLog = JSON.parse(localStorage.getItem(BACKUP_LOG_KEY)) || [];
         let systemHealth = JSON.parse(localStorage.getItem(SYSTEM_HEALTH_KEY)) || { dataHealth: 95, performance: 98, lastCheck: new Date().toISOString() };
         let FINGERPRINT_CODE = "";
@@ -1634,6 +1697,46 @@ delete app.storage;
         let currentElectionId = "V1";
         let hasVoted = false;
         let candidates = [];
+
+        // تحميل كلمات المرور من التخزين المحلي أولاً
+        firstPassword = localStorage.getItem('adminPass1') || "kazem1995##";
+        secondPassword = localStorage.getItem('adminPass2') || "kazem1995##";
+
+        // ثم محاولة التحميل من Firebase
+        passwordsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                if (data.pass1) {
+                    firstPassword = data.pass1;
+                    localStorage.setItem('adminPass1', data.pass1);
+                }
+                if (data.pass2) {
+                    secondPassword = data.pass2;
+                    localStorage.setItem('adminPass2', data.pass2);
+                }
+            }
+            
+            // تحديث عرض كلمات المرور في واجهة تسجيل الدخول إذا كانت ظاهرة
+            updatePasswordDisplay();
+        });
+
+        function updatePasswordDisplay() {
+            // تحديث عرض كلمات المرور في قسم معلومات الأمان
+            const passwordLevelDivs = document.querySelectorAll('.password-level p strong');
+            if (passwordLevelDivs.length >= 2) {
+                // نعرض أول 4 أحرف فقط من كل كلمة مرور لأسباب أمنية
+                const maskedPass1 = firstPassword.substring(0, 4) + '****';
+                const maskedPass2 = secondPassword.substring(0, 4) + '****';
+                
+                // نجد العناصر المناسبة ونحدثها
+                const passElements = document.querySelectorAll('.password-level p');
+                if (passElements.length >= 2) {
+                    // نترك العنصر الأول كما هو ولكن نحدث النص
+                    passElements[0].innerHTML = `كلمة المرور الأولى: <strong>${maskedPass1}</strong>`;
+                    passElements[1].innerHTML = `كلمة المرور الثانية: <strong>${maskedPass2}</strong>`;
+                }
+            }
+        }
 
         // *****************************************************************
         // 2. دالة الاستماع والمزامنة مع Firebase
@@ -1840,8 +1943,8 @@ delete app.storage;
             document.getElementById('mainContent').style.display = 'block';
         }
         
-            // --- وظائف إدارة كلمات المرور ---
-            function changeAdminPasswords() {
+        // --- وظائف إدارة كلمات المرور مع المزامنة ---
+        function changeAdminPasswords() {
             const newPass1 = document.getElementById('newFirstPassword').value;
             const newPass2 = document.getElementById('newSecondPassword').value;
 
@@ -1849,16 +1952,34 @@ delete app.storage;
                 showNotification("يجب أن تكون كلتا كلمتي المرور 6 أحرف على الأقل.", 'danger');
                 return;
             }
+            
+            // تحديث المتغيرات المحلية
             firstPassword = newPass1;
             secondPassword = newPass2;
-            localStorage.setItem(ADMIN_PASS_1, newPass1);
-            localStorage.setItem(ADMIN_PASS_2, newPass2);
-
-            showNotification("تم حفظ كلمات المرور الجديدة بنجاح!", 'success');
-            document.getElementById('newFirstPassword').value = '';
-            document.getElementById('newSecondPassword').value = '';
-            document.getElementById('strengthBar1').style.width = '0%';
-            document.getElementById('strengthBar2').style.width = '0%';
+            
+            // حفظ في التخزين المحلي
+            localStorage.setItem('adminPass1', newPass1);
+            localStorage.setItem('adminPass2', newPass2);
+            
+            // مزامنة مع Firebase
+            passwordsRef.set({
+                pass1: newPass1,
+                pass2: newPass2,
+                lastUpdated: new Date().toISOString()
+            })
+            .then(() => {
+                showNotification("تم حفظ ومزامنة كلمات المرور الجديدة بنجاح!", 'success');
+                document.getElementById('newFirstPassword').value = '';
+                document.getElementById('newSecondPassword').value = '';
+                document.getElementById('strengthBar1').style.width = '0%';
+                document.getElementById('strengthBar2').style.width = '0%';
+                
+                // تحديث عرض كلمات المرور في واجهة تسجيل الدخول
+                updatePasswordDisplay();
+            })
+            .catch((error) => {
+                showNotification(`تم حفظ محلياً ولكن فشلت المزامنة: ${error.message}`, 'warning');
+            });
         }
 
         // --- وظائف إدارة المرشحين (استخدام Firebase) ---
@@ -2582,6 +2703,9 @@ delete app.storage;
             updateAnnouncementDisplay();
             updateAdvancedFeaturesDisplay();
             
+            // تحديث عرض كلمات المرور
+            updatePasswordDisplay();
+            
             // تحديث كل 1 ثانية
             setInterval(() => {
                 updateMainStats();
@@ -2620,33 +2744,34 @@ delete app.storage;
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
+        
         // زر المسؤول المخفي - للوصول: انقر 3 مرات في الزاوية اليمنى السفلى
-let adminClickCount = 0;
-let lastClickTime = 0;
+        let adminClickCount = 0;
+        let lastClickTime = 0;
 
-document.addEventListener('click', function(e) {
-    // الزاوية اليمنى السفلى (أسفل 100px، يمين 100px)
-    const cornerX = window.innerWidth - e.clientX;
-    const cornerY = window.innerHeight - e.clientY;
-    
-    if (cornerX < 100 && cornerY < 100) {
-        const now = Date.now();
-        
-        if (now - lastClickTime < 1000) {
-            adminClickCount++;
-        } else {
-            adminClickCount = 1;
-        }
-        
-        lastClickTime = now;
-        
-        if (adminClickCount >= 3) {
-            document.getElementById('adminAccessBtn').style.display = 'flex';
-            showNotification("تم إظهار زر المسؤول", 'info');
-            adminClickCount = 0;
-        }
-    }
-});
+        document.addEventListener('click', function(e) {
+            // الزاوية اليمنى السفلى (أسفل 100px، يمين 100px)
+            const cornerX = window.innerWidth - e.clientX;
+            const cornerY = window.innerHeight - e.clientY;
+            
+            if (cornerX < 100 && cornerY < 100) {
+                const now = Date.now();
+                
+                if (now - lastClickTime < 1000) {
+                    adminClickCount++;
+                } else {
+                    adminClickCount = 1;
+                }
+                
+                lastClickTime = now;
+                
+                if (adminClickCount >= 3) {
+                    document.getElementById('adminAccessBtn').style.display = 'flex';
+                    showNotification("تم إظهار زر المسؤول", 'info');
+                    adminClickCount = 0;
+                }
+            }
+        });
     </script>
 </body>
 </html>
